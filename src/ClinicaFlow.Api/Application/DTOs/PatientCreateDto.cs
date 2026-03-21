@@ -26,12 +26,20 @@ public class PatientCreateDto
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Codice fiscale del paziente.
+    /// </summary>
+    [Required(ErrorMessage = "Il codice fiscale del paziente è obbligatorio.")]
+    [StringLength(16, MinimumLength = 16, ErrorMessage = "Il codice fiscale deve contenere 16 caratteri.")]
+    [SwaggerSchema(Description = "Codice fiscale del paziente.", Nullable = false)]
+    public string TaxCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// Data di nascita del paziente.
     /// </summary>
     [Required(ErrorMessage = "La data di nascita del paziente è obbligatoria.")]
     [DataType(DataType.Date)]
     [SwaggerSchema(Description = "Data di nascita del paziente.")]
-    public DateTime DateOfBirth { get; set; }
+    public DateTime BirthDate { get; set; }
 
     /// <summary>
     /// Numero di telefono del paziente.

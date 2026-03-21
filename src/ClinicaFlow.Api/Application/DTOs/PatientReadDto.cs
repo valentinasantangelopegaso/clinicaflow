@@ -27,10 +27,16 @@ public class PatientReadDto
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Codice fiscale del paziente.
+    /// </summary>
+    [SwaggerSchema(Description = "Codice fiscale del paziente.")]
+    public string TaxCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// Data di nascita del paziente.
     /// </summary>
     [SwaggerSchema(Description = "Data di nascita del paziente.")]
-    public DateTime DateOfBirth { get; set; }
+    public DateTime BirthDate { get; set; }
 
     /// <summary>
     /// Numero di telefono del paziente.

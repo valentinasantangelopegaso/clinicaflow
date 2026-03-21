@@ -1,7 +1,6 @@
 using ClinicaFlow.Api.Application.DTOs;
 using ClinicaFlow.Api.Domain.Entities;
 using ClinicaFlow.Api.Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
@@ -50,7 +49,8 @@ public class PatientsController : ControllerBase
                 Id = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName,
-                DateOfBirth = p.BirthDate,
+                TaxCode = p.TaxCode,
+                BirthDate = p.BirthDate,
                 Phone = p.Phone,
                 Email = p.Email
             })
@@ -81,7 +81,8 @@ public class PatientsController : ControllerBase
                 Id = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName,
-                DateOfBirth = p.BirthDate,
+                TaxCode = p.TaxCode,
+                BirthDate = p.BirthDate,
                 Phone = p.Phone,
                 Email = p.Email
             })
@@ -106,15 +107,26 @@ public class PatientsController : ControllerBase
         Description = "Inserisce un nuovo paziente nel sistema.")]
     [SwaggerResponse(StatusCodes.Status201Created, "Paziente creato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Dati di input non validi.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un paziente con lo stesso codice fiscale.")]
     [ProducesResponseType(typeof(PatientReadDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<PatientReadDto>> Create([FromBody] PatientCreateDto dto)
     {
+        var taxCodeExists = await _context.Patients
+            .AnyAsync(p => p.TaxCode == dto.TaxCode);
+
+        if (taxCodeExists)
+        {
+            return Conflict("Esiste già un paziente con lo stesso codice fiscale.");
+        }
+
         var patient = new Patient
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            BirthDate = dto.DateOfBirth,
+            TaxCode = dto.TaxCode,
+            BirthDate = dto.BirthDate,
             Phone = dto.Phone,
             Email = dto.Email
         };
@@ -127,7 +139,8 @@ public class PatientsController : ControllerBase
             Id = patient.Id,
             FirstName = patient.FirstName,
             LastName = patient.LastName,
-            DateOfBirth = patient.BirthDate,
+            TaxCode = patient.TaxCode,
+            BirthDate = patient.BirthDate,
             Phone = patient.Phone,
             Email = patient.Email
         };
@@ -147,8 +160,10 @@ public class PatientsController : ControllerBase
         Description = "Aggiorna i dati anagrafici e di contatto di un paziente esistente.")]
     [SwaggerResponse(StatusCodes.Status204NoContent, "Paziente aggiornato correttamente.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Paziente non trovato.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un altro paziente con lo stesso codice fiscale.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(int id, [FromBody] PatientCreateDto dto)
     {
         var patient = await _context.Patients.FindAsync(id);
@@ -158,9 +173,18 @@ public class PatientsController : ControllerBase
             return NotFound("Paziente non trovato.");
         }
 
+        var duplicateTaxCode = await _context.Patients
+            .AnyAsync(p => p.Id != id && p.TaxCode == dto.TaxCode);
+
+        if (duplicateTaxCode)
+        {
+            return Conflict("Esiste già un altro paziente con lo stesso codice fiscale.");
+        }
+
         patient.FirstName = dto.FirstName;
         patient.LastName = dto.LastName;
-        patient.BirthDate = dto.DateOfBirth;
+        patient.TaxCode = dto.TaxCode;
+        patient.BirthDate = dto.BirthDate;
         patient.Phone = dto.Phone;
         patient.Email = dto.Email;
 
