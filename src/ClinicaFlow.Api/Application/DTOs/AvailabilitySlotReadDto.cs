@@ -1,6 +1,6 @@
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace ClinicaFlow.Api.DTOs;
+namespace ClinicaFlow.Api.Application.DTOs;
 
 /// <summary>
 /// DTO utilizzato per la lettura dei dati di uno slot di disponibilità.

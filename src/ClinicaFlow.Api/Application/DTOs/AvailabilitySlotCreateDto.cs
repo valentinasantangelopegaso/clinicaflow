@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace ClinicaFlow.Api.DTOs;
+namespace ClinicaFlow.Api.Application.DTOs;
 
 /// <summary>
 /// DTO utilizzato per la creazione di uno slot di disponibilità.

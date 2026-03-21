@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using ClinicaFlow.Api.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace ClinicaFlow.Api.DTOs;
+namespace ClinicaFlow.Api.Application.DTOs;
 
 /// <summary>
 /// DTO utilizzato per l'aggiornamento dello stato di un appuntamento.

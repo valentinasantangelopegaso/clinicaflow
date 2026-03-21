@@ -1,7 +1,7 @@
 using ClinicaFlow.Api.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace ClinicaFlow.Api.DTOs;
+namespace ClinicaFlow.Api.Application.DTOs;
 
 /// <summary>
 /// DTO utilizzato per la lettura dei dati di un appuntamento.
