@@ -28,6 +28,11 @@ public class Appointment
     public int AvailabilitySlotId { get; set; }
 
     /// <summary>
+    /// Data e ora dell'appuntamento derivata dallo slot prenotato.
+    /// </summary>
+    public DateTime AppointmentDate { get; set; }
+
+    /// <summary>
     /// Stato corrente dell'appuntamento.
     /// </summary>
     public AppointmentStatus Status { get; set; }

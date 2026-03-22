@@ -56,7 +56,7 @@ public class AppointmentsController : ControllerBase
                 DoctorId = a.DoctorId,
                 DoctorFullName = a.Doctor.FirstName + " " + a.Doctor.LastName,
                 AvailabilitySlotId = a.AvailabilitySlotId,
-                StartTime = a.AvailabilitySlot.StartDateTime,
+                StartTime = a.AppointmentDate,
                 EndTime = a.AvailabilitySlot.EndDateTime,
                 Status = a.Status,
                 Notes = a.Notes
@@ -94,7 +94,7 @@ public class AppointmentsController : ControllerBase
                 DoctorId = a.DoctorId,
                 DoctorFullName = a.Doctor.FirstName + " " + a.Doctor.LastName,
                 AvailabilitySlotId = a.AvailabilitySlotId,
-                StartTime = a.AvailabilitySlot.StartDateTime,
+                StartTime = a.AppointmentDate,
                 EndTime = a.AvailabilitySlot.EndDateTime,
                 Status = a.Status,
                 Notes = a.Notes
@@ -152,6 +152,7 @@ public class AppointmentsController : ControllerBase
             PatientId = dto.PatientId,
             DoctorId = slot.DoctorId,
             AvailabilitySlotId = slot.Id,
+            AppointmentDate = slot.StartDateTime,
             Status = AppointmentStatus.Scheduled,
             Notes = dto.Notes
         };
@@ -174,7 +175,7 @@ public class AppointmentsController : ControllerBase
                 DoctorId = a.DoctorId,
                 DoctorFullName = a.Doctor.FirstName + " " + a.Doctor.LastName,
                 AvailabilitySlotId = a.AvailabilitySlotId,
-                StartTime = a.AvailabilitySlot.StartDateTime,
+                StartTime = a.AppointmentDate,
                 EndTime = a.AvailabilitySlot.EndDateTime,
                 Status = a.Status,
                 Notes = a.Notes
@@ -193,7 +194,7 @@ public class AppointmentsController : ControllerBase
     [HttpPut("{id:int}/status")]
     [SwaggerOperation(
         Summary = "Aggiorna lo stato di un appuntamento",
-        Description = "Aggiorna lo stato di un appuntamento. In caso di annullamento, lo slot viene nuovamente reso disponibile.")]
+        Description = "Aggiorna lo stato di un appuntamento. In caso di annullamento, lo slot viene nuovamente reso disponibile e l'appuntamento viene rimosso dal sistema.")]
     [SwaggerResponse(StatusCodes.Status204NoContent, "Stato dell'appuntamento aggiornato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Transizione di stato non valida.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Appuntamento non trovato.")]
@@ -216,17 +217,22 @@ public class AppointmentsController : ControllerBase
             return BadRequest("Non è possibile modificare un appuntamento già completato.");
         }
 
-        if (appointment.Status == AppointmentStatus.Cancelled && dto.Status != AppointmentStatus.Cancelled)
+        if (dto.Status == AppointmentStatus.Cancelled)
+        {
+            appointment.AvailabilitySlot.IsAvailable = true;
+            _context.Appointments.Remove(appointment);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        if (appointment.Status == AppointmentStatus.Cancelled)
         {
             return BadRequest("Non è possibile riattivare un appuntamento annullato.");
         }
 
-        if (dto.Status == AppointmentStatus.Cancelled)
-        {
-            appointment.Status = AppointmentStatus.Cancelled;
-            appointment.AvailabilitySlot.IsAvailable = true;
-        }
-        else if (dto.Status == AppointmentStatus.Completed)
+        if (dto.Status == AppointmentStatus.Completed)
         {
             appointment.Status = AppointmentStatus.Completed;
         }
