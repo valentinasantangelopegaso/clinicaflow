@@ -27,6 +27,12 @@ public class DoctorReadDto
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Codice fiscale del medico.
+    /// </summary>
+    [SwaggerSchema(Description = "Codice fiscale del medico.")]
+    public string TaxCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// Identificativo della specializzazione associata.
     /// </summary>
     [SwaggerSchema(Description = "Identificativo della specializzazione associata.")]

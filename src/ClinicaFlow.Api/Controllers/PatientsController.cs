@@ -97,6 +97,45 @@ public class PatientsController : ControllerBase
     }
 
     /// <summary>
+    /// Restituisce un paziente tramite codice fiscale.
+    /// </summary>
+    /// <param name="taxCode">Codice fiscale del paziente.</param>
+    /// <returns>Dati del paziente richiesto.</returns>
+    [HttpGet("by-taxcode/{taxCode}")]
+    [SwaggerOperation(
+        Summary = "Recupera un paziente per codice fiscale",
+        Description = "Restituisce i dati del paziente associato al codice fiscale indicato. Questo endpoint è usato per l'accesso simulato all'area paziente.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Paziente recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Paziente non trovato.")]
+    [ProducesResponseType(typeof(PatientReadDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PatientReadDto>> GetByTaxCode(string taxCode)
+    {
+        var normalizedTaxCode = taxCode.Trim().ToUpperInvariant();
+
+        var patient = await _context.Patients
+            .Where(p => p.TaxCode == normalizedTaxCode)
+            .Select(p => new PatientReadDto
+            {
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                TaxCode = p.TaxCode,
+                BirthDate = p.BirthDate,
+                Phone = p.Phone,
+                Email = p.Email
+            })
+            .FirstOrDefaultAsync();
+
+        if (patient is null)
+        {
+            return NotFound("Paziente non trovato.");
+        }
+
+        return Ok(patient);
+    }
+
+    /// <summary>
     /// Crea un nuovo paziente.
     /// </summary>
     /// <param name="dto">Dati del paziente da creare.</param>

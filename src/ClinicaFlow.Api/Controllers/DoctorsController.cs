@@ -1,7 +1,6 @@
 using ClinicaFlow.Api.Application.DTOs;
 using ClinicaFlow.Api.Domain.Entities;
 using ClinicaFlow.Api.Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
@@ -31,6 +30,16 @@ public class DoctorsController : ControllerBase
     }
 
     /// <summary>
+    /// Normalizza il codice fiscale in ingresso.
+    /// </summary>
+    /// <param name="taxCode">Codice fiscale da normalizzare.</param>
+    /// <returns>Codice fiscale ripulito e convertito in maiuscolo.</returns>
+    private static string NormalizeTaxCode(string taxCode)
+    {
+        return taxCode.Trim().ToUpperInvariant();
+    }
+
+    /// <summary>
     /// Restituisce l'elenco completo dei medici.
     /// </summary>
     /// <returns>Lista ordinata dei medici con relativa specializzazione.</returns>
@@ -51,6 +60,7 @@ public class DoctorsController : ControllerBase
                 Id = d.Id,
                 FirstName = d.FirstName,
                 LastName = d.LastName,
+                TaxCode = d.TaxCode,
                 SpecialtyId = d.SpecialtyId,
                 SpecialtyName = d.Specialty.Name
             })
@@ -82,6 +92,46 @@ public class DoctorsController : ControllerBase
                 Id = d.Id,
                 FirstName = d.FirstName,
                 LastName = d.LastName,
+                TaxCode = d.TaxCode,
+                SpecialtyId = d.SpecialtyId,
+                SpecialtyName = d.Specialty.Name
+            })
+            .FirstOrDefaultAsync();
+
+        if (doctor is null)
+        {
+            return NotFound("Medico non trovato.");
+        }
+
+        return Ok(doctor);
+    }
+
+    /// <summary>
+    /// Restituisce un medico tramite codice fiscale.
+    /// </summary>
+    /// <param name="taxCode">Codice fiscale del medico.</param>
+    /// <returns>Dati del medico richiesto.</returns>
+    [HttpGet("by-taxcode/{taxCode}")]
+    [SwaggerOperation(
+        Summary = "Recupera un medico per codice fiscale",
+        Description = "Restituisce i dati del medico associato al codice fiscale indicato. Questo endpoint è usato per l'accesso simulato all'area medico.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Medico recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
+    [ProducesResponseType(typeof(DoctorReadDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<DoctorReadDto>> GetByTaxCode(string taxCode)
+    {
+        var normalizedTaxCode = NormalizeTaxCode(taxCode);
+
+        var doctor = await _context.Doctors
+            .Include(d => d.Specialty)
+            .Where(d => d.TaxCode == normalizedTaxCode)
+            .Select(d => new DoctorReadDto
+            {
+                Id = d.Id,
+                FirstName = d.FirstName,
+                LastName = d.LastName,
+                TaxCode = d.TaxCode,
                 SpecialtyId = d.SpecialtyId,
                 SpecialtyName = d.Specialty.Name
             })
@@ -106,8 +156,10 @@ public class DoctorsController : ControllerBase
         Description = "Inserisce un nuovo medico nel sistema associandolo a una specializzazione esistente.")]
     [SwaggerResponse(StatusCodes.Status201Created, "Medico creato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un medico con lo stesso codice fiscale.")]
     [ProducesResponseType(typeof(DoctorReadDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<DoctorReadDto>> Create([FromBody] DoctorCreateDto dto)
     {
         var specialtyExists = await _context.Specialties
@@ -118,10 +170,21 @@ public class DoctorsController : ControllerBase
             return BadRequest("La specializzazione indicata non esiste.");
         }
 
+        var normalizedTaxCode = NormalizeTaxCode(dto.TaxCode);
+
+        var duplicateTaxCode = await _context.Doctors
+            .AnyAsync(d => d.TaxCode == normalizedTaxCode);
+
+        if (duplicateTaxCode)
+        {
+            return Conflict("Esiste già un medico con lo stesso codice fiscale.");
+        }
+
         var doctor = new Doctor
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
+            TaxCode = normalizedTaxCode,
             SpecialtyId = dto.SpecialtyId
         };
 
@@ -136,6 +199,7 @@ public class DoctorsController : ControllerBase
                 Id = d.Id,
                 FirstName = d.FirstName,
                 LastName = d.LastName,
+                TaxCode = d.TaxCode,
                 SpecialtyId = d.SpecialtyId,
                 SpecialtyName = d.Specialty.Name
             })
@@ -157,9 +221,11 @@ public class DoctorsController : ControllerBase
     [SwaggerResponse(StatusCodes.Status204NoContent, "Medico aggiornato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un altro medico con lo stesso codice fiscale.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(int id, [FromBody] DoctorCreateDto dto)
     {
         var doctor = await _context.Doctors.FindAsync(id);
@@ -177,8 +243,19 @@ public class DoctorsController : ControllerBase
             return BadRequest("La specializzazione indicata non esiste.");
         }
 
+        var normalizedTaxCode = NormalizeTaxCode(dto.TaxCode);
+
+        var duplicateTaxCode = await _context.Doctors
+            .AnyAsync(d => d.Id != id && d.TaxCode == normalizedTaxCode);
+
+        if (duplicateTaxCode)
+        {
+            return Conflict("Esiste già un altro medico con lo stesso codice fiscale.");
+        }
+
         doctor.FirstName = dto.FirstName;
         doctor.LastName = dto.LastName;
+        doctor.TaxCode = normalizedTaxCode;
         doctor.SpecialtyId = dto.SpecialtyId;
 
         await _context.SaveChangesAsync();
