@@ -29,7 +29,6 @@ public class PatientCreateDto
     /// Codice fiscale del paziente.
     /// </summary>
     [Required(ErrorMessage = "Il codice fiscale del paziente è obbligatorio.")]
-    [StringLength(16, MinimumLength = 16, ErrorMessage = "Il codice fiscale deve contenere 16 caratteri.")]
     [SwaggerSchema(Description = "Codice fiscale del paziente.", Nullable = false)]
     public string TaxCode { get; set; } = string.Empty;
 

@@ -4,6 +4,7 @@ using ClinicaFlow.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using ClinicaFlow.Api.Application.Helpers;
 
 namespace ClinicaFlow.Api.Controllers;
 
@@ -27,16 +28,6 @@ public class DoctorsController : ControllerBase
     public DoctorsController(ClinicaFlowDbContext context)
     {
         _context = context;
-    }
-
-    /// <summary>
-    /// Normalizza il codice fiscale in ingresso.
-    /// </summary>
-    /// <param name="taxCode">Codice fiscale da normalizzare.</param>
-    /// <returns>Codice fiscale ripulito e convertito in maiuscolo.</returns>
-    private static string NormalizeTaxCode(string taxCode)
-    {
-        return taxCode.Trim().ToUpperInvariant();
     }
 
     /// <summary>
@@ -121,7 +112,7 @@ public class DoctorsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DoctorReadDto>> GetByTaxCode(string taxCode)
     {
-        var normalizedTaxCode = NormalizeTaxCode(taxCode);
+        var normalizedTaxCode = TaxCodeHelper.Normalize(taxCode);
 
         var doctor = await _context.Doctors
             .Include(d => d.Specialty)
@@ -144,7 +135,6 @@ public class DoctorsController : ControllerBase
 
         return Ok(doctor);
     }
-
     /// <summary>
     /// Crea un nuovo medico.
     /// </summary>
@@ -170,7 +160,13 @@ public class DoctorsController : ControllerBase
             return BadRequest("La specializzazione indicata non esiste.");
         }
 
-        var normalizedTaxCode = NormalizeTaxCode(dto.TaxCode);
+        var normalizedTaxCode = TaxCodeHelper.Normalize(dto.TaxCode);
+
+        if (normalizedTaxCode.Length != 16)
+        {
+            ModelState.AddModelError("TaxCode", "Il codice fiscale deve contenere 16 caratteri.");
+            return ValidationProblem(ModelState);
+        }
 
         var duplicateTaxCode = await _context.Doctors
             .AnyAsync(d => d.TaxCode == normalizedTaxCode);
@@ -207,7 +203,6 @@ public class DoctorsController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = doctor.Id }, result);
     }
-
     /// <summary>
     /// Aggiorna un medico esistente.
     /// </summary>
@@ -243,7 +238,7 @@ public class DoctorsController : ControllerBase
             return BadRequest("La specializzazione indicata non esiste.");
         }
 
-        var normalizedTaxCode = NormalizeTaxCode(dto.TaxCode);
+        var normalizedTaxCode = TaxCodeHelper.Normalize(dto.TaxCode);
 
         var duplicateTaxCode = await _context.Doctors
             .AnyAsync(d => d.Id != id && d.TaxCode == normalizedTaxCode);
@@ -262,7 +257,6 @@ public class DoctorsController : ControllerBase
 
         return NoContent();
     }
-
     /// <summary>
     /// Elimina un medico se non ha slot o appuntamenti associati.
     /// </summary>

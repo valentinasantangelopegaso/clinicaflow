@@ -29,7 +29,6 @@ public class DoctorCreateDto
     /// Codice fiscale del medico.
     /// </summary>
     [Required(ErrorMessage = "Il codice fiscale del medico è obbligatorio.")]
-    [StringLength(16, MinimumLength = 16, ErrorMessage = "Il codice fiscale deve contenere 16 caratteri.")]
     [SwaggerSchema(Description = "Codice fiscale del medico.", Nullable = false)]
     public string TaxCode { get; set; } = string.Empty;
 

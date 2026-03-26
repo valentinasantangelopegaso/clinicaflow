@@ -4,7 +4,7 @@ using ClinicaFlow.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
-
+using ClinicaFlow.Api.Application.Helpers;
 namespace ClinicaFlow.Api.Controllers;
 
 /// <summary>
@@ -111,7 +111,7 @@ public class PatientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PatientReadDto>> GetByTaxCode(string taxCode)
     {
-        var normalizedTaxCode = taxCode.Trim().ToUpperInvariant();
+        var normalizedTaxCode = TaxCodeHelper.Normalize(taxCode);
 
         var patient = await _context.Patients
             .Where(p => p.TaxCode == normalizedTaxCode)
@@ -134,7 +134,6 @@ public class PatientsController : ControllerBase
 
         return Ok(patient);
     }
-
     /// <summary>
     /// Crea un nuovo paziente.
     /// </summary>
@@ -152,8 +151,16 @@ public class PatientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<PatientReadDto>> Create([FromBody] PatientCreateDto dto)
     {
+        var normalizedTaxCode = TaxCodeHelper.Normalize(dto.TaxCode);
+
+        if (normalizedTaxCode.Length != 16)
+        {
+            ModelState.AddModelError("TaxCode", "Il codice fiscale deve contenere 16 caratteri.");
+            return ValidationProblem(ModelState);
+        }
+
         var taxCodeExists = await _context.Patients
-            .AnyAsync(p => p.TaxCode == dto.TaxCode);
+            .AnyAsync(p => p.TaxCode == normalizedTaxCode);
 
         if (taxCodeExists)
         {
@@ -164,7 +171,7 @@ public class PatientsController : ControllerBase
         {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
-            TaxCode = dto.TaxCode,
+            TaxCode = normalizedTaxCode,
             BirthDate = dto.BirthDate,
             Phone = dto.Phone,
             Email = dto.Email
@@ -186,7 +193,6 @@ public class PatientsController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = patient.Id }, result);
     }
-
     /// <summary>
     /// Aggiorna un paziente esistente.
     /// </summary>
@@ -212,8 +218,10 @@ public class PatientsController : ControllerBase
             return NotFound("Paziente non trovato.");
         }
 
+        var normalizedTaxCode = TaxCodeHelper.Normalize(dto.TaxCode);
+
         var duplicateTaxCode = await _context.Patients
-            .AnyAsync(p => p.Id != id && p.TaxCode == dto.TaxCode);
+            .AnyAsync(p => p.Id != id && p.TaxCode == normalizedTaxCode);
 
         if (duplicateTaxCode)
         {
@@ -222,7 +230,7 @@ public class PatientsController : ControllerBase
 
         patient.FirstName = dto.FirstName;
         patient.LastName = dto.LastName;
-        patient.TaxCode = dto.TaxCode;
+        patient.TaxCode = normalizedTaxCode;
         patient.BirthDate = dto.BirthDate;
         patient.Phone = dto.Phone;
         patient.Email = dto.Email;
@@ -231,7 +239,6 @@ public class PatientsController : ControllerBase
 
         return NoContent();
     }
-
     /// <summary>
     /// Elimina un paziente se non ha appuntamenti associati.
     /// </summary>
