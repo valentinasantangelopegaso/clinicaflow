@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<!--
+  Area Back Office
+
+  Questa pagina consente al personale amministrativo di gestire tutte le
+  entità principali del sistema: pazienti, medici, specializzazioni,
+  slot di disponibilità, appuntamenti e referti medici. È organizzata
+  in tab per facilitare la navigazione tra i diversi moduli.
+-->
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ClinicaFlow – Back Office</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/backoffice.css" />
+  </head>
+  <body>
+    <!-- Barra di navigazione -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../index.html">ClinicaFlow</a>
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#"
+                >Back Office</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="doctor.html">Area Medico</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="patient.html">Area Paziente</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container mt-4">
+      <section id="backofficeLoginSection" class="card">
+        <h1 class="backoffice-title mb-3">Accesso Back Office</h1>
+        <p class="small-text mb-3">
+          Accesso simulato lato frontend. Per la demo utilizza il codice
+          <strong>BACKOFFICE2026</strong>.
+        </p>
+        <div id="backofficeLoginAlert"></div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="backofficeAccessCode" class="form-label">Codice accesso</label>
+            <input
+              type="password"
+              class="form-control"
+              id="backofficeAccessCode"
+              placeholder="Inserisci il codice di accesso"
+            />
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="backofficeLoginButton">Accedi</button>
+      </section>
+
+      <section id="backofficeDashboard" class="d-none">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <h1 class="backoffice-title" style="margin-bottom:0;">Back Office</h1>
+        <button type="button" class="btn btn-secondary btn-sm" id="backofficeLogoutButton">Logout</button>
+      </div>
+      <p class="small-text mb-3">Area amministrativa con accesso simulato.</p>
+      <!-- Navigazione tab -->
+      <ul class="nav nav-tabs" id="backofficeTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="patients-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#patients"
+            type="button"
+            role="tab"
+            aria-controls="patients"
+            aria-selected="true"
+          >
+            Pazienti
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="doctors-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#doctors"
+            type="button"
+            role="tab"
+            aria-controls="doctors"
+            aria-selected="false"
+          >
+            Medici
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="specialties-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#specialties"
+            type="button"
+            role="tab"
+            aria-controls="specialties"
+            aria-selected="false"
+          >
+            Specializzazioni
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="slots-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#slots"
+            type="button"
+            role="tab"
+            aria-controls="slots"
+            aria-selected="false"
+          >
+            Slot disponibilità
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="appointments-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#appointments"
+            type="button"
+            role="tab"
+            aria-controls="appointments"
+            aria-selected="false"
+          >
+            Appuntamenti
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="reports-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#reports"
+            type="button"
+            role="tab"
+            aria-controls="reports"
+            aria-selected="false"
+          >
+            Referti
+          </button>
+        </li>
+      </ul>
+      <div class="tab-content" id="backofficeTabsContent">
+        <!-- Tab pazienti -->
+        <div
+          class="tab-pane fade show active"
+          id="patients"
+          role="tabpanel"
+          aria-labelledby="patients-tab"
+        >
+          <div id="patientsAlert"></div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="patientsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Cognome</th>
+                  <th>Codice Fiscale</th>
+                  <th>Data Nascita</th>
+                  <th>Telefono</th>
+                  <th>Email</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="form-section">
+            <h3>Gestione paziente</h3>
+            <form id="patientForm">
+              <input type="hidden" name="id" />
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="patientFirstName" class="form-label">Nome</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="patientFirstName"
+                    name="firstName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="patientLastName" class="form-label"
+                    >Cognome</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="patientLastName"
+                    name="lastName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="patientTaxCode" class="form-label"
+                    >Codice Fiscale</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="patientTaxCode"
+                    name="taxCode"
+                    maxlength="16"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="patientBirthDate" class="form-label"
+                    >Data di nascita</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="patientBirthDate"
+                    name="birthDate"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="patientPhone" class="form-label">Telefono</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="patientPhone"
+                    name="phone"
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label for="patientEmail" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="patientEmail"
+                    name="email"
+                  />
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary" id="patientSubmit">Salva</button>
+                <button type="button" class="btn btn-secondary" id="patientCancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Tab medici -->
+        <div
+          class="tab-pane fade"
+          id="doctors"
+          role="tabpanel"
+          aria-labelledby="doctors-tab"
+        >
+          <div id="doctorsAlert"></div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="doctorsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Cognome</th>
+                  <th>Codice Fiscale</th>
+                  <th>Specializzazione</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="form-section">
+            <h3>Gestione medico</h3>
+            <form id="doctorForm">
+              <input type="hidden" name="id" />
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="doctorFirstName" class="form-label">Nome</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="doctorFirstName"
+                    name="firstName"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="doctorLastName" class="form-label"
+                    >Cognome</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="doctorLastName"
+                    name="lastName"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="doctorTaxCode" class="form-label"
+                    >Codice Fiscale</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="doctorTaxCode"
+                    name="taxCode"
+                    maxlength="16"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="doctorSpecialty" class="form-label"
+                    >Specializzazione</label
+                  >
+                  <select
+                    class="form-select"
+                    id="doctorSpecialty"
+                    name="specialtyId"
+                    required
+                  >
+                    <option value="">Seleziona…</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary" id="doctorSubmit">Salva</button>
+                <button type="button" class="btn btn-secondary" id="doctorCancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Tab specializzazioni -->
+        <div
+          class="tab-pane fade"
+          id="specialties"
+          role="tabpanel"
+          aria-labelledby="specialties-tab"
+        >
+          <div id="specialtiesAlert"></div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="specialtiesTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="form-section">
+            <h3>Gestione specializzazione</h3>
+            <form id="specialtyForm">
+              <input type="hidden" name="id" />
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="specialtyName" class="form-label">Nome</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="specialtyName"
+                    name="name"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary" id="specialtySubmit">Salva</button>
+                <button type="button" class="btn btn-secondary" id="specialtyCancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Tab slot disponibilità -->
+        <div
+          class="tab-pane fade"
+          id="slots"
+          role="tabpanel"
+          aria-labelledby="slots-tab"
+        >
+          <div id="slotsAlert"></div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="slotsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Medico</th>
+                  <th>Inizio</th>
+                  <th>Fine</th>
+                  <th>Disponibile</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="form-section">
+            <h3>Gestione slot</h3>
+            <form id="slotForm">
+              <input type="hidden" name="id" />
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="slotDoctor" class="form-label">Medico</label>
+                  <select
+                    class="form-select"
+                    id="slotDoctor"
+                    name="doctorId"
+                    required
+                  >
+                    <option value="">Seleziona…</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="slotStart" class="form-label">Inizio</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control"
+                    id="slotStart"
+                    name="startTime"
+                    required
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label for="slotEnd" class="form-label">Fine</label>
+                  <input
+                    type="datetime-local"
+                    class="form-control"
+                    id="slotEnd"
+                    name="endTime"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary" id="slotSubmit">Salva</button>
+                <button type="button" class="btn btn-secondary" id="slotCancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Tab appuntamenti -->
+        <div
+          class="tab-pane fade"
+          id="appointments"
+          role="tabpanel"
+          aria-labelledby="appointments-tab"
+        >
+          <div id="appointmentsAlert"></div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="appointmentsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Paziente</th>
+                  <th>Medico</th>
+                  <th>Inizio</th>
+                  <th>Fine</th>
+                  <th>Stato</th>
+                  <th>Note</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="form-section">
+            <h3>Gestione appuntamento</h3>
+            <form id="appointmentForm">
+              <input type="hidden" name="id" />
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="appointmentPatient" class="form-label"
+                    >Paziente</label
+                  >
+                  <select
+                    class="form-select"
+                    id="appointmentPatient"
+                    name="patientId"
+                    required
+                  >
+                    <option value="">Seleziona…</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="appointmentSlot" class="form-label">Slot</label>
+                  <select
+                    class="form-select"
+                    id="appointmentSlot"
+                    name="slotId"
+                    required
+                  >
+                    <option value="">Seleziona…</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="appointmentNotes" class="form-label"
+                    >Note</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="appointmentNotes"
+                    name="notes"
+                  />
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary" id="appointmentSubmit">Salva</button>
+                <button type="button" class="btn btn-secondary" id="appointmentCancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Tab referti -->
+        <div
+          class="tab-pane fade"
+          id="reports"
+          role="tabpanel"
+          aria-labelledby="reports-tab"
+        >
+          <div id="reportsAlert"></div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="reportsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Appuntamento</th>
+                  <th>Diagnosi</th>
+                  <th>Terapia</th>
+                  <th>Note</th>
+                  <th>Creato il</th>
+                  <th>Azione</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="form-section">
+            <h3>Gestione referto</h3>
+            <form id="reportForm">
+              <input type="hidden" name="id" />
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label for="reportAppointment" class="form-label"
+                    >Appuntamento</label
+                  >
+                  <select
+                    class="form-select"
+                    id="reportAppointment"
+                    name="appointmentId"
+                    required
+                  >
+                    <option value="">Seleziona…</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="reportDiagnosis" class="form-label"
+                    >Diagnosi</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="reportDiagnosis"
+                    name="diagnosis"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="reportTherapy" class="form-label"
+                    >Terapia</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="reportTherapy"
+                    name="therapy"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="reportNotes" class="form-label">Note</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="reportNotes"
+                    name="notes"
+                  />
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-primary" id="reportSubmit">Salva</button>
+                <button type="button" class="btn btn-secondary" id="reportCancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      </section>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/backoffice.js"></script>
+  </body>
+</html>

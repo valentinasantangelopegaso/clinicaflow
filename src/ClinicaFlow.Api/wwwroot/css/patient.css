@@ -1,0 +1,14 @@
+/*
+ * patient.css
+ *
+ * Stili specifici per l'area dedicata ai pazienti. Usa colori
+ * rilassanti per mettere a proprio agio l'utente finale.
+ */
+
+body {
+  background-color: #fff7f0;
+}
+
+.patient-header {
+  color: #c04c00;
+}

@@ -1,0 +1,358 @@
+/*
+ * common.css
+ *
+ * File di stile condiviso tra tutte le pagine dell'applicazione.
+ * Qui vengono definiti alcuni spacing, colori e stili di fallback
+ * per garantire una resa decorosa anche se Bootstrap non viene caricato.
+ */
+
+:root {
+  --cf-primary: #0d6efd;
+  --cf-primary-dark: #0a58ca;
+  --cf-bg: #f4f7fb;
+  --cf-surface: #ffffff;
+  --cf-border: #d9e2ec;
+  --cf-text: #1f2937;
+  --cf-muted: #6b7280;
+  --cf-success: #198754;
+  --cf-danger: #dc3545;
+  --cf-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --cf-radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #eef4ff 0%, var(--cf-bg) 100%);
+  color: var(--cf-text);
+  padding-bottom: 3rem;
+  line-height: 1.5;
+}
+
+.container,
+.container-fluid {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.navbar {
+  background: linear-gradient(135deg, var(--cf-primary) 0%, var(--cf-primary-dark) 100%);
+  color: #fff;
+  box-shadow: var(--cf-shadow);
+}
+
+.navbar .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.navbar-brand {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: none;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+h1, h2, h3, h4, h5 {
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+.mt-4 { margin-top: 2rem !important; }
+.mt-5 { margin-top: 3rem !important; }
+.mb-2 { margin-bottom: 0.75rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.me-1 { margin-right: 0.5rem !important; }
+.me-2 { margin-right: 0.75rem !important; }
+
+.lead {
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.cf-hero {
+  background: var(--cf-surface);
+  border: 1px solid var(--cf-border);
+  border-radius: calc(var(--cf-radius) + 4px);
+  padding: 2rem;
+  box-shadow: var(--cf-shadow);
+}
+
+.cf-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.cf-hero p {
+  max-width: 800px;
+}
+
+.form-section,
+.card,
+.tab-content > .tab-pane,
+#loginSection,
+#patientLoginSection,
+#doctorDashboard,
+#patientDashboard {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  background-color: var(--cf-surface);
+  box-shadow: var(--cf-shadow);
+}
+
+.form-section h3 {
+  margin-bottom: 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
+.row > [class*="col-"] {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  width: 100%;
+}
+
+.col-md-3,
+.col-md-4,
+.col-md-6 {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .col-md-3 { width: 25%; }
+  .col-md-4 { width: 33.3333%; }
+  .col-md-6 { width: 50%; }
+}
+
+.form-label {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.form-control,
+.form-select,
+textarea {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.98rem;
+  color: var(--cf-text);
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  outline: none;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: var(--cf-primary);
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+}
+
+.btn {
+  display: inline-block;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.72rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary { background: var(--cf-primary); color: #fff; }
+.btn-primary:hover { background: var(--cf-primary-dark); }
+.btn-success { background: var(--cf-success); color: #fff; }
+.btn-secondary { background: #64748b; color: #fff; }
+.btn-danger { background: var(--cf-danger); color: #fff; }
+
+.btn-outline-primary,
+.btn-outline-danger {
+  background: #fff;
+  border: 1px solid currentColor;
+}
+
+.btn-outline-primary { color: var(--cf-primary); }
+.btn-outline-danger { color: var(--cf-danger); }
+
+.btn-sm {
+  padding: 0.45rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.table-responsive {
+  margin-top: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius);
+  background: #fff;
+  box-shadow: var(--cf-shadow);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.table th,
+.table td {
+  padding: 0.9rem 0.85rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table thead th {
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.table-striped tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.alert {
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+}
+
+.alert-success {
+  background: #ecfdf5;
+  color: #166534;
+  border-color: #a7f3d0;
+}
+
+.alert-danger {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.small-text,
+.small,
+.text-muted {
+  font-size: 0.92rem;
+  color: var(--cf-muted);
+}
+
+.nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0 0;
+  border-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+  color: #1e3a8a;
+  background: #e0edff;
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+}
+
+.nav-tabs .nav-link.active {
+  background: var(--cf-primary);
+  color: #fff;
+}
+
+.tab-content > .tab-pane {
+  display: none;
+}
+
+.tab-content > .active {
+  display: block;
+}
+
+.list-group {
+  padding-left: 0;
+  margin: 0;
+}
+
+.list-group-item {
+  list-style: none;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.list-group-item:last-child {
+  border-bottom: 0;
+}
+
+.d-none {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .cf-hero {
+    padding: 1.4rem;
+  }
+
+  .cf-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .navbar .container-fluid {
+    align-items: flex-start;
+  }
+
+  .navbar-nav {
+    width: 100%;
+  }
+}

@@ -1,0 +1,15 @@
+/*
+ * doctor.css
+ *
+ * Stili specifici per l'area dedicata ai medici. Colori più tenui
+ * rispetto al back office per facilitare la lettura durante le
+ * consultazioni.
+ */
+
+body {
+  background-color: #f4f8f4;
+}
+
+.doctor-header {
+  color: #198754;
+}
