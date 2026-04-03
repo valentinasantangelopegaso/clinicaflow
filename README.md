@@ -16,7 +16,7 @@ Il sistema consente di gestire pazienti, medici, disponibilità delle visite, pr
 
 - ASP.NET Core Web API
 - Entity Framework Core (approccio Code First)
-- SQL Server
+- SQL Server 2025
 - HTML, CSS e JavaScript
 - Bootstrap
 - Swagger / OpenAPI per la documentazione delle API
