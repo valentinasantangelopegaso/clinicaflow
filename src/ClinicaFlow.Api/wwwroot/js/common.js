@@ -108,6 +108,42 @@ function resetForm(form) {
   if (hiddenId) hiddenId.value = "";
 }
 
+function getToken() {
+    return sessionStorage.getItem("authToken");
+}
+
+function setAuthData(data) {
+    sessionStorage.setItem("authToken", data.token);
+    sessionStorage.setItem("authRole", data.role);
+    if (data.doctorId) sessionStorage.setItem("doctorId", data.doctorId);
+    if (data.patientId) sessionStorage.setItem("patientId", data.patientId);
+}
+
+function clearAuthData() {
+    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("authRole");
+    sessionStorage.removeItem("doctorId");
+    sessionStorage.removeItem("patientId");
+}
+
+async function apiFetch(url, options = {}) {
+    const token = getToken();
+
+    const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return fetch(url, {
+        ...options,
+        headers
+    });
+}
+
 // Esporta le funzioni globalmente in modo da poterle utilizzare nei moduli
 window.apiFetch = apiFetch;
 window.showAlert = showAlert;

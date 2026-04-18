@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentReportId = null;
       reportForm.reset();
     }
-    reportAppointmentInfo.textContent = `${appointment.patientFullName} – ${formatDateTime(appointment.startTime)}`;
+    reportAppointmentInfo.textContent = `${appointment.patientFullName} - ${formatDateTime(appointment.startTime)}`;
     reportEditor.classList.remove('d-none');
     // Scorri fino al form per una migliore UX
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });

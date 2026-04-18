@@ -1,10 +1,12 @@
 using ClinicaFlow.Api.Application.DTOs;
+using ClinicaFlow.Api.Application.Helpers;
+using ClinicaFlow.Api.Controllers.Base;
 using ClinicaFlow.Api.Domain.Entities;
 using ClinicaFlow.Api.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
-using ClinicaFlow.Api.Application.Helpers;
 
 namespace ClinicaFlow.Api.Controllers;
 
@@ -14,7 +16,8 @@ namespace ClinicaFlow.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class DoctorsController : ControllerBase
+[Authorize]
+public class DoctorsController : AuthenticatedControllerBase
 {
     /// <summary>
     /// Contesto Entity Framework utilizzato per l'accesso ai dati.
@@ -32,14 +35,20 @@ public class DoctorsController : ControllerBase
 
     /// <summary>
     /// Restituisce l'elenco completo dei medici.
+    /// Operazione riservata al Back Office.
     /// </summary>
     /// <returns>Lista ordinata dei medici con relativa specializzazione.</returns>
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Recupera tutti i medici",
-        Description = "Restituisce l'elenco completo dei medici con l'indicazione della specializzazione associata.")]
+        Description = "Restituisce l'elenco completo dei medici con l'indicazione della specializzazione associata. Endpoint riservato al ruolo Admin.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Elenco dei medici recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [ProducesResponseType(typeof(IEnumerable<DoctorReadDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IEnumerable<DoctorReadDto>>> GetAll()
     {
         var doctors = await _context.Doctors
@@ -62,19 +71,30 @@ public class DoctorsController : ControllerBase
 
     /// <summary>
     /// Restituisce un medico tramite identificativo.
+    /// Il medico autenticato può leggere solo il proprio profilo.
     /// </summary>
     /// <param name="id">Identificativo del medico.</param>
     /// <returns>Dati del medico richiesto.</returns>
     [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin,Doctor")]
     [SwaggerOperation(
         Summary = "Recupera un medico per id",
-        Description = "Restituisce i dati di un medico specifico con la relativa specializzazione.")]
+        Description = "Restituisce i dati di un singolo medico con la relativa specializzazione. Il ruolo Doctor può accedere solo al proprio record; il ruolo Admin può accedere a qualsiasi medico.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Medico recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato a leggere questo record.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
     [ProducesResponseType(typeof(DoctorReadDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DoctorReadDto>> GetById(int id)
     {
+        if (User.IsInRole("Doctor") && GetCurrentDoctorId() != id)
+        {
+            return Forbid();
+        }
+
         var doctor = await _context.Doctors
             .Include(d => d.Specialty)
             .Where(d => d.Id == id)
@@ -99,16 +119,22 @@ public class DoctorsController : ControllerBase
 
     /// <summary>
     /// Restituisce un medico tramite codice fiscale.
+    /// Endpoint mantenuto come funzione di lookup amministrativa e non come login.
     /// </summary>
     /// <param name="taxCode">Codice fiscale del medico.</param>
     /// <returns>Dati del medico richiesto.</returns>
     [HttpGet("by-taxcode/{taxCode}")]
+    [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Recupera un medico per codice fiscale",
-        Description = "Restituisce i dati del medico associato al codice fiscale indicato. Questo endpoint è usato per l'accesso simulato all'area medico.")]
+        Description = "Restituisce i dati del medico associato al codice fiscale indicato. Endpoint riservato al ruolo Admin.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Medico recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
     [ProducesResponseType(typeof(DoctorReadDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DoctorReadDto>> GetByTaxCode(string taxCode)
     {
@@ -135,20 +161,27 @@ public class DoctorsController : ControllerBase
 
         return Ok(doctor);
     }
+
     /// <summary>
     /// Crea un nuovo medico.
+    /// Operazione riservata al Back Office.
     /// </summary>
     /// <param name="dto">Dati del medico da creare.</param>
     /// <returns>Medico appena creato.</returns>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Crea un nuovo medico",
-        Description = "Inserisce un nuovo medico nel sistema associandolo a una specializzazione esistente.")]
+        Description = "Inserisce un nuovo medico nel sistema associandolo a una specializzazione esistente. Endpoint riservato al ruolo Admin.")]
     [SwaggerResponse(StatusCodes.Status201Created, "Medico creato correttamente.")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida.")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida o dati di input non validi.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un medico con lo stesso codice fiscale.")]
     [ProducesResponseType(typeof(DoctorReadDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<DoctorReadDto>> Create([FromBody] DoctorCreateDto dto)
     {
@@ -203,22 +236,29 @@ public class DoctorsController : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = doctor.Id }, result);
     }
+
     /// <summary>
     /// Aggiorna un medico esistente.
+    /// Operazione riservata al Back Office.
     /// </summary>
     /// <param name="id">Identificativo del medico da aggiornare.</param>
     /// <param name="dto">Nuovi dati del medico.</param>
     /// <returns>Esito dell'operazione di aggiornamento.</returns>
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Aggiorna un medico",
-        Description = "Aggiorna i dati anagrafici e la specializzazione di un medico esistente.")]
+        Description = "Aggiorna i dati anagrafici e la specializzazione di un medico esistente. Endpoint riservato al ruolo Admin.")]
     [SwaggerResponse(StatusCodes.Status204NoContent, "Medico aggiornato correttamente.")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida.")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida o dati di input non validi.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un altro medico con lo stesso codice fiscale.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(int id, [FromBody] DoctorCreateDto dto)
@@ -240,6 +280,12 @@ public class DoctorsController : ControllerBase
 
         var normalizedTaxCode = TaxCodeHelper.Normalize(dto.TaxCode);
 
+        if (normalizedTaxCode.Length != 16)
+        {
+            ModelState.AddModelError("TaxCode", "Il codice fiscale deve contenere 16 caratteri.");
+            return ValidationProblem(ModelState);
+        }
+
         var duplicateTaxCode = await _context.Doctors
             .AnyAsync(d => d.Id != id && d.TaxCode == normalizedTaxCode);
 
@@ -257,19 +303,26 @@ public class DoctorsController : ControllerBase
 
         return NoContent();
     }
+
     /// <summary>
     /// Elimina un medico se non ha slot o appuntamenti associati.
+    /// Operazione riservata al Back Office.
     /// </summary>
     /// <param name="id">Identificativo del medico da eliminare.</param>
     /// <returns>Esito dell'operazione di eliminazione.</returns>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Elimina un medico",
-        Description = "Elimina un medico solo se non risulta collegato a slot di disponibilità o appuntamenti.")]
+        Description = "Elimina un medico solo se non risulta collegato a slot di disponibilità o appuntamenti. Endpoint riservato al ruolo Admin.")]
     [SwaggerResponse(StatusCodes.Status204NoContent, "Medico eliminato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Il medico è collegato a slot o appuntamenti.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(int id)

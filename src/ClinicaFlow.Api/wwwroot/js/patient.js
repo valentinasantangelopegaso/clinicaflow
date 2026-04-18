@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {Object} appointment Appuntamento associato.
    */
   function showReport(report, appointment) {
-    reportAppointmentInfo.textContent = `${appointment.doctorFullName} – ${formatDateTime(appointment.startTime)}`;
+    reportAppointmentInfo.textContent = `${appointment.doctorFullName} - ${formatDateTime(appointment.startTime)}`;
     reportDiagnosis.textContent = report.diagnosis;
     reportTherapy.textContent = report.therapy;
     reportNotes.textContent = report.notes || '';

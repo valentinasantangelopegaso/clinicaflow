@@ -1,7 +1,9 @@
 using ClinicaFlow.Api.Application.DTOs;
+using ClinicaFlow.Api.Controllers.Base;
 using ClinicaFlow.Api.Domain.Entities;
 using ClinicaFlow.Api.Domain.Enums;
 using ClinicaFlow.Api.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +17,8 @@ namespace ClinicaFlow.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class AppointmentsController : ControllerBase
+[Authorize]
+public class AppointmentsController : AuthenticatedControllerBase
 {
     /// <summary>
     /// Contesto Entity Framework utilizzato per l'accesso ai dati.
@@ -32,21 +35,52 @@ public class AppointmentsController : ControllerBase
     }
 
     /// <summary>
-    /// Restituisce l'elenco completo degli appuntamenti.
+    /// Restituisce l'elenco degli appuntamenti visibili all'utente autenticato.
     /// </summary>
-    /// <returns>Lista degli appuntamenti con dati di paziente, medico e slot.</returns>
+    /// <returns>Lista degli appuntamenti filtrata in base al ruolo.</returns>
     [HttpGet]
+    [Authorize(Roles = "Admin,Doctor,Patient")]
     [SwaggerOperation(
-        Summary = "Recupera tutti gli appuntamenti",
-        Description = "Restituisce l'elenco completo degli appuntamenti prenotati nel sistema.")]
+        Summary = "Recupera gli appuntamenti",
+        Description = "Restituisce gli appuntamenti visibili all'utente autenticato. Admin vede tutti gli appuntamenti, Doctor vede solo i propri, Patient vede solo i propri.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Elenco degli appuntamenti recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [ProducesResponseType(typeof(IEnumerable<AppointmentReadDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IEnumerable<AppointmentReadDto>>> GetAll()
     {
-        var appointments = await _context.Appointments
+        var query = _context.Appointments
             .Include(a => a.Patient)
             .Include(a => a.Doctor)
             .Include(a => a.AvailabilitySlot)
+            .AsQueryable();
+
+        if (User.IsInRole("Doctor"))
+        {
+            var currentDoctorId = GetCurrentDoctorId();
+
+            if (!currentDoctorId.HasValue)
+            {
+                return Forbid();
+            }
+
+            query = query.Where(a => a.DoctorId == currentDoctorId.Value);
+        }
+        else if (User.IsInRole("Patient"))
+        {
+            var currentPatientId = GetCurrentPatientId();
+
+            if (!currentPatientId.HasValue)
+            {
+                return Forbid();
+            }
+
+            query = query.Where(a => a.PatientId == currentPatientId.Value);
+        }
+
+        var appointments = await query
             .OrderBy(a => a.AvailabilitySlot.StartDateTime)
             .Select(a => new AppointmentReadDto
             {
@@ -72,12 +106,17 @@ public class AppointmentsController : ControllerBase
     /// <param name="id">Identificativo dell'appuntamento.</param>
     /// <returns>Dati dell'appuntamento richiesto.</returns>
     [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin,Doctor,Patient")]
     [SwaggerOperation(
         Summary = "Recupera un appuntamento per id",
-        Description = "Restituisce i dati di un singolo appuntamento.")]
+        Description = "Restituisce i dati di un singolo appuntamento. Admin può accedere a qualsiasi record, Doctor solo ai propri appuntamenti, Patient solo ai propri appuntamenti.")]
     [SwaggerResponse(StatusCodes.Status200OK, "Appuntamento recuperato correttamente.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato a leggere questo appuntamento.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Appuntamento non trovato.")]
     [ProducesResponseType(typeof(AppointmentReadDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AppointmentReadDto>> GetById(int id)
     {
@@ -106,6 +145,16 @@ public class AppointmentsController : ControllerBase
             return NotFound("Appuntamento non trovato.");
         }
 
+        if (User.IsInRole("Doctor") && GetCurrentDoctorId() != appointment.DoctorId)
+        {
+            return Forbid();
+        }
+
+        if (User.IsInRole("Patient") && GetCurrentPatientId() != appointment.PatientId)
+        {
+            return Forbid();
+        }
+
         return Ok(appointment);
     }
 
@@ -115,17 +164,27 @@ public class AppointmentsController : ControllerBase
     /// <param name="dto">Dati dell'appuntamento da creare.</param>
     /// <returns>Appuntamento appena creato.</returns>
     [HttpPost]
+    [Authorize(Roles = "Admin,Patient")]
     [SwaggerOperation(
         Summary = "Prenota un nuovo appuntamento",
-        Description = "Crea un appuntamento associando un paziente a uno slot disponibile. Lo slot diventa automaticamente non disponibile.")]
+        Description = "Crea un appuntamento associando un paziente a uno slot disponibile. Lo slot diventa automaticamente non disponibile. Il ruolo Patient può prenotare solo per se stesso.")]
     [SwaggerResponse(StatusCodes.Status201Created, "Appuntamento creato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Paziente o slot non validi.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato a prenotare per un altro paziente.")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "Lo slot selezionato non è più disponibile.")]
     [ProducesResponseType(typeof(AppointmentReadDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<AppointmentReadDto>> Create([FromBody] AppointmentCreateDto dto)
     {
+        if (User.IsInRole("Patient") && GetCurrentPatientId() != dto.PatientId)
+        {
+            return Forbid();
+        }
+
         var patientExists = await _context.Patients
             .AnyAsync(p => p.Id == dto.PatientId);
 
@@ -192,14 +251,19 @@ public class AppointmentsController : ControllerBase
     /// <param name="dto">Nuovo stato dell'appuntamento.</param>
     /// <returns>Esito dell'operazione di aggiornamento.</returns>
     [HttpPut("{id:int}/status")]
+    [Authorize(Roles = "Admin,Doctor,Patient")]
     [SwaggerOperation(
         Summary = "Aggiorna lo stato di un appuntamento",
-        Description = "Aggiorna lo stato di un appuntamento. In caso di annullamento, lo slot viene nuovamente reso disponibile e l'appuntamento viene rimosso dal sistema.")]
+        Description = "Aggiorna lo stato di un appuntamento. Admin può aggiornare qualsiasi appuntamento; Doctor può aggiornare solo i propri; Patient può soltanto annullare i propri appuntamenti non completati.")]
     [SwaggerResponse(StatusCodes.Status204NoContent, "Stato dell'appuntamento aggiornato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Transizione di stato non valida.")]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
+    [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato a modificare questo appuntamento.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Appuntamento non trovato.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] AppointmentStatusUpdateDto dto)
     {
@@ -212,9 +276,32 @@ public class AppointmentsController : ControllerBase
             return NotFound("Appuntamento non trovato.");
         }
 
+        if (User.IsInRole("Doctor") && GetCurrentDoctorId() != appointment.DoctorId)
+        {
+            return Forbid();
+        }
+
+        if (User.IsInRole("Patient"))
+        {
+            if (GetCurrentPatientId() != appointment.PatientId)
+            {
+                return Forbid();
+            }
+
+            if (dto.Status != AppointmentStatus.Cancelled)
+            {
+                return BadRequest("Il paziente può solo annullare i propri appuntamenti.");
+            }
+        }
+
         if (appointment.Status == AppointmentStatus.Completed && dto.Status != AppointmentStatus.Completed)
         {
             return BadRequest("Non è possibile modificare un appuntamento già completato.");
+        }
+
+        if (appointment.Status == AppointmentStatus.Cancelled)
+        {
+            return BadRequest("Non è possibile modificare un appuntamento già annullato.");
         }
 
         if (dto.Status == AppointmentStatus.Cancelled)
@@ -223,13 +310,7 @@ public class AppointmentsController : ControllerBase
             _context.Appointments.Remove(appointment);
 
             await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        if (appointment.Status == AppointmentStatus.Cancelled)
-        {
-            return BadRequest("Non è possibile riattivare un appuntamento annullato.");
         }
 
         if (dto.Status == AppointmentStatus.Completed)

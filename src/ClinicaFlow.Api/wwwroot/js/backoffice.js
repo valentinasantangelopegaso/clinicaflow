@@ -780,7 +780,7 @@ function populateAvailableSlotSelect(slots) {
     if (s.isAvailable) {
       const option = document.createElement('option');
       option.value = s.id;
-      option.textContent = `${s.doctorFullName} – ${formatDateTime(s.startTime)}`;
+      option.textContent = `${s.doctorFullName} - ${formatDateTime(s.startTime)}`;
       select.appendChild(option);
     }
   });
@@ -801,7 +801,7 @@ function populateCompletedAppointmentSelect(appointments) {
     if (a.status === 1) {
       const option = document.createElement('option');
       option.value = a.id;
-      option.textContent = `${a.patientFullName} / ${a.doctorFullName} – ${formatDateTime(a.startTime)}`;
+      option.textContent = `${a.patientFullName} / ${a.doctorFullName} - ${formatDateTime(a.startTime)}`;
       select.appendChild(option);
     }
   });
