@@ -14,8 +14,11 @@ builder.Services.AddControllers();
 // Configura autenticazione JWT.
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key non configurata.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer non configurato.");
-// var jwtKey = builder.Configuration["Jwt:Key"] ?? "supersegretodev"; // sposta la chiave nel configuration file
-// var issuer = builder.Configuration["Jwt:Issuer"] ?? "ClinicaFlow";
+
+if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+{
+    throw new InvalidOperationException("Jwt:Key deve contenere almeno 32 byte per HS256.");
+}
 
 builder.Services.AddAuthentication(options =>
 {
