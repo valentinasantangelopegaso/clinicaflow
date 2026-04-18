@@ -95,9 +95,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Applica automaticamente le migration e poi avvia il seed.
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ClinicaFlowDbContext>();
+
+    await dbContext.Database.MigrateAsync();
     await DbSeeder.SeedAsync(dbContext);
 }
 
