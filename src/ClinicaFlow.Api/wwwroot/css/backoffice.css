@@ -1,20 +1,15 @@
-/*
- * backoffice.css
- *
- * Stili specifici per l'area di Back Office. Qui si possono definire
- * accorgimenti grafici per distinguere la sezione amministrativa dalle
- * altre parti dell'applicazione.
- */
+/* Stili specifici per il Back Office */
 
-body {
-  background-color: #eef7ff;
-}
-
-.backoffice-title {
-  color: #0056b3;
-}
-
-.nav-tabs .nav-link.active {
-  background-color: #0d6efd;
+#dashboard-view .nav-tabs .nav-link.active {
+  background-color: var(--cf-primary);
   color: #fff;
+}
+
+#dashboard-view .nav-tabs .nav-link {
+  color: var(--cf-primary);
+}
+
+/* Modal override per modale centrale */
+.modal-dialog {
+  margin-top: 10vh;
 }

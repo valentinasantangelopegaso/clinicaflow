@@ -1,124 +1,98 @@
 <!DOCTYPE html>
-<!--
-  Area Paziente
-
-  Questa pagina consente ai pazienti di accedere con il proprio codice
-  fiscale e visualizzare le proprie informazioni anagrafiche, gli
-  appuntamenti prenotati e i referti medici disponibili. Non è
-  possibile modificare i dati o creare nuovi appuntamenti: il
-  paziente può solo consultare il proprio storico e le informazioni
-  relative alle visite effettuate.
--->
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ClinicaFlow - Area Paziente</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="../css/common.css" />
-    <link rel="stylesheet" href="../css/patient.css" />
-  </head>
-  <body>
-    <!-- Barra di navigazione -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">ClinicaFlow</a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="backoffice.html">Back Office</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="doctor.html">Area Medico</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#"
-                >Area Paziente</a
-              >
-            </li>
-          </ul>
-        </div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ClinicaFlow – Area Paziente</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/css/common.css" rel="stylesheet" />
+  <link href="/css/patient.css" rel="stylesheet" />
+</head>
+<body>
+  <!-- Navbar comune -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/index.html">ClinicaFlow</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/pages/backoffice.html">Back Office</a></li>
+          <li class="nav-item"><a class="nav-link" href="/pages/doctor.html">Area Medico</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="/pages/patient.html">Area Paziente</a></li>
+        </ul>
       </div>
-    </nav>
-    <div class="container mt-4">
-      <!-- Sezione accesso -->
-      <div id="patientLoginSection">
-        <h1 class="patient-header mb-3">Accesso Paziente</h1>
+    </div>
+  </nav>
+
+  <!-- Vista login -->
+  <main class="container py-5" id="patient-login-view">
+    <div class="login-card">
+      <h1 class="h4 text-center">Accesso Paziente</h1>
+      <div id="patient-login-alert"></div>
+      <form id="patient-login-form">
         <div class="mb-3">
-          <label for="patientTaxCode" class="form-label">Codice fiscale</label>
-          <input
-            type="text"
-            id="patientTaxCode"
-            class="form-control"
-            maxlength="16"
-            placeholder="Inserisci il tuo codice fiscale"
-          />
+          <label class="form-label">Username</label>
+          <input type="text" class="form-control" name="username" required />
         </div>
-        <button id="patientLoginBtn" class="btn btn-primary">
-          Accedi
-        </button>
-        <div id="patientLoginAlert" class="mt-3"></div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" name="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Accedi</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Dashboard paziente -->
+  <main class="container py-4 d-none" id="patient-dashboard-view">
+    <div class="patient-header d-flex justify-content-between align-items-center">
+      <h1 class="h4 mb-0">Area Paziente</h1>
+      <div class="d-flex align-items-center gap-3">
+        <span><strong id="patient-name"></strong></span>
+        <button class="btn btn-outline-light btn-sm" id="patient-logout-btn">Logout</button>
       </div>
-      <!-- Dashboard paziente, inizialmente nascosta -->
-      <div id="patientDashboard" class="d-none">
-        <h1 class="patient-header">Benvenuto, <span id="patientName"></span></h1>
-        <p>
-          Data di nascita: <strong id="patientBirthDate"></strong><br />
-          Email: <strong id="patientEmail"></strong><br />
-          Telefono: <strong id="patientPhone"></strong>
-        </p>
-        <!-- Appuntamenti del paziente -->
-        <h2 class="h4 mt-4">I tuoi appuntamenti</h2>
-        <div id="patientAppointmentsAlert" class="mb-2"></div>
+    </div>
+    <h2 class="h5 mb-2">Appuntamenti</h2>
+    <div id="patient-appointments-alert"></div>
+    <div class="row g-4">
+      <div class="col-lg-6">
         <div class="table-responsive">
-          <table id="patientAppointmentsTable" class="table table-striped">
+          <table class="table table-striped table-sm" id="patient-appointments-table">
             <thead>
               <tr>
-                <th>#</th>
+                <th>Data & Ora</th>
                 <th>Medico</th>
-                <th>Data e ora</th>
                 <th>Stato</th>
-                <th>Note</th>
-                <th>Referto</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-        <!-- Dettaglio referto, nascosto finché non selezionato -->
-        <div id="patientReportDetails" class="card mt-4 d-none">
+      </div>
+      <div class="col-lg-6">
+        <div class="card h-100 shadow-sm">
           <div class="card-body">
-            <h3 class="h5">Referto medico</h3>
-            <p class="small text-muted mb-3">
-              Appuntamento: <span id="patientReportAppointmentInfo"></span>
-            </p>
-            <ul class="list-group list-group-flush mb-3">
-              <li class="list-group-item">
-                <strong>Diagnosi:</strong> <span id="patientReportDiagnosis"></span>
-              </li>
-              <li class="list-group-item">
-                <strong>Terapia:</strong> <span id="patientReportTherapy"></span>
-              </li>
-              <li class="list-group-item">
-                <strong>Note:</strong> <span id="patientReportNotes"></span>
-              </li>
-              <li class="list-group-item">
-                <strong>Creato il:</strong> <span id="patientReportCreatedAt"></span>
-              </li>
-            </ul>
-            <button id="patientReportCloseBtn" class="btn btn-secondary">
-              Chiudi
-            </button>
+            <h5 class="card-title">Referto selezionato</h5>
+            <p class="card-text" id="patient-report-details">Seleziona un appuntamento per visualizzare il referto.</p>
           </div>
         </div>
       </div>
     </div>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/common.js"></script>
-    <script src="../js/patient.js"></script>
-  </body>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/patient.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
