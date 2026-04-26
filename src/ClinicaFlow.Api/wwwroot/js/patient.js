@@ -1,4 +1,6 @@
-// Script per l’area Paziente di ClinicaFlow
+// Script per l’area Paziente di ClinicaFlow.
+// La visualizzazione usa i campi reali restituiti dagli AppointmentReadDto e MedicalReportReadDto.
+
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('patient-login-view');
   const dashboardView = document.getElementById('patient-dashboard-view');
@@ -9,108 +11,132 @@ document.addEventListener('DOMContentLoaded', () => {
   const appointmentsTableBody = document.querySelector('#patient-appointments-table tbody');
   const reportDetails = document.getElementById('patient-report-details');
 
+  // Mostra la dashboard paziente.
   function showDashboard() {
     loginView.classList.add('d-none');
     dashboardView.classList.remove('d-none');
   }
 
-  // Verifica sessione esistente
+  // Converte lo stato numerico dell'appuntamento in testo leggibile.
+  function statusText(status) {
+    const numericStatus = Number(status);
+    switch (numericStatus) {
+      case 0:
+        return 'Pianificato';
+      case 1:
+        return 'Completato';
+      case 2:
+        return 'Annullato';
+      default:
+        return 'Sconosciuto';
+    }
+  }
+
+  // Restituisce testo sicuro per valori vuoti.
+  function valueOrDash(value) {
+    return value === null || value === undefined || value === '' ? '-' : value;
+  }
+
   const existingAuth = getAuthData();
   if (existingAuth && existingAuth.role === 'Patient') {
     showDashboard();
     loadPatientData(existingAuth);
   }
 
-  // Login submit
+  // Login paziente.
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginAlert.innerHTML = '';
+
     const username = e.target.username.value.trim();
     const password = e.target.password.value.trim();
+
     try {
       const auth = await login(username, password);
+
       if (auth.role !== 'Patient') {
         clearAuthData();
-        showAlert(loginAlert, 'Ruolo non autorizzato per l\'area Paziente', 'danger');
+        showAlert(loginAlert, 'Ruolo non autorizzato per l\'area Paziente.', 'danger');
         return;
       }
+
       showDashboard();
-      loadPatientData(auth);
+      await loadPatientData(auth);
     } catch (err) {
-      showAlert(loginAlert, err.message || 'Errore di autenticazione', 'danger');
+      showAlert(loginAlert, err.message || 'Errore di autenticazione.', 'danger');
     }
   });
 
-  // Logout
+  // Logout.
   logoutBtn?.addEventListener('click', () => {
     logout();
   });
 
-  /**
-   * Carica i dati del paziente: dettagli e appuntamenti.
-   * @param {Object} auth
-   */
+  // Carica dati paziente e appuntamenti.
   async function loadPatientData(auth) {
-    try {
-      await loadPatientDetails(auth.patientId);
-      await loadAppointments();
-    } catch (err) {
-      console.error(err);
-    }
+    await loadPatientDetails(auth.patientId);
+    await loadAppointments();
   }
 
+  // Carica il profilo del paziente autenticato.
   async function loadPatientDetails(patientId) {
     try {
-      const resp = await apiFetch(`/patients/${patientId}`);
-      const patient = await resp.json();
+      const response = await apiFetch(`/Patients/${patientId}`);
+      const patient = await response.json();
       patientNameLabel.textContent = `${patient.firstName} ${patient.lastName}`;
     } catch (err) {
       console.error('Errore nel recupero dati paziente:', err);
     }
   }
 
+  // Carica appuntamenti filtrati dal backend in base al paziente autenticato.
   async function loadAppointments() {
     try {
-      const resp = await apiFetch('/appointments');
-      const appointments = await resp.json();
+      const response = await apiFetch('/Appointments');
+      const appointments = await response.json();
       appointmentsTableBody.innerHTML = '';
-      appointments.forEach((a) => {
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-id', a.id);
-        tr.innerHTML = `
-          <td>${formatDateTime(a.dateTime)}</td>
-          <td>${a.doctor?.firstName || ''} ${a.doctor?.lastName || ''}</td>
-          <td>${a.status}</td>
+
+      appointments.forEach((appointment) => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', appointment.id);
+        row.innerHTML = `
+          <td>${formatDateTime(appointment.startTime)}</td>
+          <td>${appointment.doctorFullName}</td>
+          <td>${statusText(appointment.status)}</td>
         `;
-        appointmentsTableBody.appendChild(tr);
+        appointmentsTableBody.appendChild(row);
       });
     } catch (err) {
       console.error('Errore nel caricamento appuntamenti paziente:', err);
     }
   }
 
-  // Quando l'utente seleziona un appuntamento, carica il referto
+  // Carica il referto associato alla riga selezionata.
   appointmentsTableBody?.addEventListener('click', async (e) => {
     const row = e.target.closest('tr');
     if (!row) return;
+
     const appointmentId = row.getAttribute('data-id');
     await loadReportDetails(appointmentId);
   });
 
+  // Mostra diagnosi, terapia e note del referto.
   async function loadReportDetails(appointmentId) {
     try {
-      const resp = await apiFetch(`/medicalreports/by-appointment/${appointmentId}`);
-      if (resp.ok) {
-        const report = await resp.json();
+      const response = await apiFetch(`/MedicalReports/by-appointment/${appointmentId}`);
+      if (response.ok) {
+        const report = await response.json();
         reportDetails.innerHTML = `
-          <strong>Diagnosi:</strong> ${report.diagnosis || ''}<br />
-          <strong>Descrizione:</strong><br />
-          <span>${report.description || ''}</span>
+          <strong>Diagnosi:</strong> ${valueOrDash(report.diagnosis)}<br />
+          <strong>Terapia:</strong> ${valueOrDash(report.therapy)}<br />
+          <strong>Note:</strong> ${valueOrDash(report.notes)}<br />
+          <small class="text-muted">Creato il ${formatDateTime(report.createdAt)}</small>
         `;
-      } else {
-        reportDetails.textContent = 'Referto non disponibile per questo appuntamento.';
+        return;
       }
-    } catch (err) {
+
+      reportDetails.textContent = 'Referto non disponibile per questo appuntamento.';
+    } catch {
       reportDetails.textContent = 'Referto non disponibile per questo appuntamento.';
     }
   }

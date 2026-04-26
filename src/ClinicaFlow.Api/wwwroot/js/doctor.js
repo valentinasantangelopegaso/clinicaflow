@@ -1,4 +1,6 @@
-// Script per l’area Medico di ClinicaFlow
+// Script per l’area Medico di ClinicaFlow.
+// Usa i DTO reali restituiti dal backend e decodifica gli stati appuntamento.
+
 document.addEventListener('DOMContentLoaded', () => {
   const loginView = document.getElementById('doctor-login-view');
   const dashboardView = document.getElementById('doctor-dashboard-view');
@@ -6,252 +8,279 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginAlert = document.getElementById('doctor-login-alert');
   const doctorNameLabel = document.getElementById('doctor-name');
   const logoutBtn = document.getElementById('doctor-logout-btn');
+  const appointmentsAlert = document.getElementById('doctor-appointments-alert');
   const appointmentsTableBody = document.querySelector('#doctor-appointments-table tbody');
   const reportsTableBody = document.querySelector('#doctor-reports-table tbody');
   const manageReportModalEl = document.getElementById('manageReportModal');
   const manageReportForm = document.getElementById('manage-report-form');
   const manageReportAlert = document.getElementById('manage-report-alert');
+
   let currentReportId = null;
+  let appointmentsCache = [];
 
-  // Inizializza modale con Bootstrap per poterlo controllare via JS
-  let manageReportModal;
-  if (typeof bootstrap !== 'undefined') {
-    manageReportModal = new bootstrap.Modal(manageReportModalEl);
-  }
+  const manageReportModal = manageReportModalEl ? new bootstrap.Modal(manageReportModalEl) : null;
 
-  // Mostra la dashboard nascondendo il login
+  // Mostra la dashboard medico.
   function showDashboard() {
     loginView.classList.add('d-none');
     dashboardView.classList.remove('d-none');
   }
 
-  // Controlla se esiste già un token per un medico loggato
+  // Converte lo stato numerico dell'appuntamento in testo leggibile.
+  function statusText(status) {
+    const numericStatus = Number(status);
+    switch (numericStatus) {
+      case 0:
+        return 'Pianificato';
+      case 1:
+        return 'Completato';
+      case 2:
+        return 'Annullato';
+      default:
+        return 'Sconosciuto';
+    }
+  }
+
+  // Restituisce testo sicuro per valori vuoti.
+  function valueOrDash(value) {
+    return value === null || value === undefined || value === '' ? '-' : value;
+  }
+
+  // Legge un messaggio di errore HTTP.
+  async function readErrorMessage(response, fallbackMessage) {
+    try {
+      const text = await response.text();
+      if (!text) return fallbackMessage;
+
+      try {
+        const json = JSON.parse(text);
+        if (json.title) return json.title;
+        if (json.errors) return Object.values(json.errors).flat().join(' ');
+      } catch {
+        return text;
+      }
+
+      return text;
+    } catch {
+      return fallbackMessage;
+    }
+  }
+
+  // Verifica una sessione medico già presente.
   const existingAuth = getAuthData();
   if (existingAuth && existingAuth.role === 'Doctor') {
     showDashboard();
     loadDoctorData(existingAuth);
   }
 
-  // Gestione login
+  // Gestione login medico.
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     loginAlert.innerHTML = '';
+
     const username = e.target.username.value.trim();
     const password = e.target.password.value.trim();
+
     try {
       const auth = await login(username, password);
+
       if (auth.role !== 'Doctor') {
         clearAuthData();
-        showAlert(loginAlert, 'Ruolo non autorizzato per l\'area Medico', 'danger');
+        showAlert(loginAlert, 'Ruolo non autorizzato per l\'area Medico.', 'danger');
         return;
       }
+
       showDashboard();
-      loadDoctorData(auth);
+      await loadDoctorData(auth);
     } catch (err) {
-      showAlert(loginAlert, err.message || 'Errore di autenticazione', 'danger');
+      showAlert(loginAlert, err.message || 'Errore di autenticazione.', 'danger');
     }
   });
 
-  // Gestione logout
+  // Gestione logout.
   logoutBtn?.addEventListener('click', () => {
     logout();
   });
 
-  /**
-   * Carica i dati del medico (info, appuntamenti e referti)
-   * @param {Object} auth Oggetto di autenticazione contenente doctorId
-   */
+  // Carica dati medico, appuntamenti e referti.
   async function loadDoctorData(auth) {
-    try {
-      await loadDoctorDetails(auth.doctorId);
-      await loadAppointments();
-      await loadReports();
-    } catch (err) {
-      console.error(err);
-    }
+    await loadDoctorDetails(auth.doctorId);
+    await loadAppointments();
+    await loadReports();
   }
 
-  /**
-   * Carica le informazioni del medico e aggiorna l'intestazione.
-   * @param {number} doctorId Identificativo del medico
-   */
+  // Carica informazioni anagrafiche del medico autenticato.
   async function loadDoctorDetails(doctorId) {
     try {
-      const resp = await apiFetch(`/doctors/${doctorId}`);
-      const doctor = await resp.json();
+      const response = await apiFetch(`/Doctors/${doctorId}`);
+      const doctor = await response.json();
       doctorNameLabel.textContent = `${doctor.firstName} ${doctor.lastName}`;
     } catch (err) {
       console.error('Errore nel recupero delle informazioni del medico:', err);
     }
   }
 
-  /**
-   * Carica la lista degli appuntamenti del medico e popola la tabella con azioni.
-   */
+  // Carica gli appuntamenti filtrati dal backend in base al ruolo Doctor.
   async function loadAppointments() {
     try {
-      const resp = await apiFetch('/appointments');
-      const appointments = await resp.json();
+      const response = await apiFetch('/Appointments');
+      appointmentsCache = await response.json();
       appointmentsTableBody.innerHTML = '';
-      appointments.forEach((a) => {
-        const tr = document.createElement('tr');
-        // pulsanti azioni
-        let actionBtns = '';
-        if (a.status === 'Scheduled' || a.status === 'Prenotato') {
-          actionBtns += `<button type="button" class="btn btn-sm btn-success me-1" data-action="complete" data-id="${a.id}">Completa</button>`;
-          actionBtns += `<button type="button" class="btn btn-sm btn-danger me-1" data-action="cancel" data-id="${a.id}">Annulla</button>`;
+
+      appointmentsCache.forEach((appointment) => {
+        const row = document.createElement('tr');
+        const status = Number(appointment.status);
+        let actionButtons = '';
+
+        if (status === 0) {
+          actionButtons += `<button type="button" class="btn btn-sm btn-success me-1" data-action="complete" data-id="${appointment.id}">Completa</button>`;
+          actionButtons += `<button type="button" class="btn btn-sm btn-outline-danger" data-action="cancel" data-id="${appointment.id}">Annulla</button>`;
         }
-        actionBtns += `<button type="button" class="btn btn-sm btn-secondary" data-action="report" data-id="${a.id}">Referto</button>`;
-        tr.innerHTML = `
-          <td>${formatDateTime(a.dateTime)}</td>
-          <td>${a.patient?.firstName || ''} ${a.patient?.lastName || ''}</td>
-          <td>${a.status}</td>
-          <td>${actionBtns}</td>
+
+        if (status === 1) {
+          actionButtons += `<button type="button" class="btn btn-sm btn-outline-primary" data-action="report" data-id="${appointment.id}">Referto</button>`;
+        }
+
+        row.innerHTML = `
+          <td>${formatDateTime(appointment.startTime)}</td>
+          <td>${appointment.patientFullName}</td>
+          <td>${statusText(appointment.status)}</td>
+          <td>${valueOrDash(appointment.notes)}</td>
+          <td>${actionButtons || '-'}</td>
         `;
-        appointmentsTableBody.appendChild(tr);
+
+        appointmentsTableBody.appendChild(row);
       });
     } catch (err) {
-      console.error('Errore nel caricamento appuntamenti medico:', err);
+      console.error('Errore nel caricamento degli appuntamenti medico:', err);
+      showAlert(appointmentsAlert, err.message || 'Errore nel caricamento degli appuntamenti.', 'danger');
     }
   }
 
-  /**
-   * Carica i referti del medico ricavandoli dagli appuntamenti.
-   */
+  // Carica i referti relativi agli appuntamenti del medico.
   async function loadReports() {
-    try {
-      const resp = await apiFetch('/appointments');
-      const appointments = await resp.json();
-      reportsTableBody.innerHTML = '';
-      for (const a of appointments) {
-        try {
-          const repResp = await apiFetch(`/medicalreports/by-appointment/${a.id}`);
-          if (repResp.ok) {
-            const report = await repResp.json();
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${formatDateTime(a.dateTime)}</td>
-              <td>${a.patient?.firstName || ''} ${a.patient?.lastName || ''}</td>
-              <td>${report.diagnosis || ''}</td>
-              <td><button type="button" class="btn btn-sm btn-secondary" data-action="report" data-id="${a.id}">Visualizza</button></td>
-            `;
-            reportsTableBody.appendChild(tr);
-          }
-        } catch (err) {
-          // Nessun referto per questo appuntamento
-        }
+    reportsTableBody.innerHTML = '';
+
+    for (const appointment of appointmentsCache) {
+      try {
+        const response = await apiFetch(`/MedicalReports/by-appointment/${appointment.id}`);
+        if (!response.ok) continue;
+
+        const report = await response.json();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${formatDateTime(appointment.startTime)}</td>
+          <td>${appointment.patientFullName}</td>
+          <td>${valueOrDash(report.diagnosis)}</td>
+          <td>${valueOrDash(report.therapy)}</td>
+          <td><button type="button" class="btn btn-sm btn-outline-primary" data-action="report" data-id="${appointment.id}">Visualizza</button></td>
+        `;
+        reportsTableBody.appendChild(row);
+      } catch {
+        // Referto assente: comportamento normale per appuntamenti non refertati.
       }
-    } catch (err) {
-      console.error('Errore nel caricamento referti medico:', err);
     }
   }
 
-  // Gestione clic sulle azioni nella tabella appuntamenti
+  // Gestione azioni tabella appuntamenti.
   appointmentsTableBody?.addEventListener('click', async (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
-    const action = btn.getAttribute('data-action');
-    if (action === 'complete' || action === 'cancel') {
-      await updateAppointmentStatus(id, action);
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const appointmentId = parseInt(button.getAttribute('data-id'), 10);
+    const action = button.getAttribute('data-action');
+
+    if (action === 'complete') {
+      await updateAppointmentStatus(appointmentId, 1);
+    } else if (action === 'cancel') {
+      await updateAppointmentStatus(appointmentId, 2);
     } else if (action === 'report') {
-      openReportModal(id);
+      await openReportModal(appointmentId);
     }
   });
 
-  // Gestione clic sulle azioni nella tabella referti (per visualizzare/gestire referto)
-  reportsTableBody?.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
-    openReportModal(id);
+  // Gestione azioni tabella referti.
+  reportsTableBody?.addEventListener('click', async (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const appointmentId = parseInt(button.getAttribute('data-id'), 10);
+    await openReportModal(appointmentId);
   });
 
-  /**
-   * Aggiorna lo stato di un appuntamento. Supporta completamento e cancellazione.
-   * @param {number} appointmentId
-   * @param {string} action 'complete' oppure 'cancel'
-   */
-  async function updateAppointmentStatus(appointmentId, action) {
+  // Aggiorna lo stato usando l'endpoint reale /Appointments/{id}/status.
+  async function updateAppointmentStatus(appointmentId, status) {
     try {
-      let url;
-      if (action === 'complete') {
-        url = `/appointments/${appointmentId}/complete`;
-      } else if (action === 'cancel') {
-        url = `/appointments/${appointmentId}/cancel`;
-      } else {
-        return;
+      const response = await apiFetch(`/Appointments/${appointmentId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore nell\'aggiornamento dello stato.'));
       }
-      const resp = await apiFetch(url, { method: 'PUT' });
-      if (!resp.ok) {
-        const msg = await resp.text();
-        throw new Error(msg || 'Errore nell\'aggiornamento dello stato');
-      }
+
       await loadAppointments();
       await loadReports();
     } catch (err) {
-      showAlert(document.getElementById('doctor-appointments-alert'), err.message || 'Errore', 'danger');
+      showAlert(appointmentsAlert, err.message || 'Errore nell\'aggiornamento dello stato.', 'danger');
     }
   }
 
-  /**
-   * Apre il modale per gestire il referto relativo all'appuntamento dato.
-   * @param {number} appointmentId
-   */
+  // Apre il modale di gestione referto per l'appuntamento indicato.
   async function openReportModal(appointmentId) {
+    if (!manageReportModal) return;
+
     manageReportAlert.innerHTML = '';
-    // Imposta l'id nell'input nascosto
-    manageReportForm.appointmentId.value = appointmentId;
-    // Resetta campi
-    manageReportForm.diagnosis.value = '';
-    manageReportForm.description.value = '';
     currentReportId = null;
+
+    manageReportForm.appointmentId.value = appointmentId;
+    manageReportForm.diagnosis.value = '';
+    manageReportForm.therapy.value = '';
+    manageReportForm.notes.value = '';
+
     try {
-      const resp = await apiFetch(`/medicalreports/by-appointment/${appointmentId}`);
-      if (resp.ok) {
-        const report = await resp.json();
+      const response = await apiFetch(`/MedicalReports/by-appointment/${appointmentId}`);
+      if (response.ok) {
+        const report = await response.json();
         currentReportId = report.id;
         manageReportForm.diagnosis.value = report.diagnosis || '';
-        manageReportForm.description.value = report.description || '';
+        manageReportForm.therapy.value = report.therapy || '';
+        manageReportForm.notes.value = report.notes || '';
       }
-    } catch (err) {
-      // nessun referto, si lascia la form vuota
+    } catch {
+      // Referto assente: si apre il modale vuoto per la creazione.
     }
+
     manageReportModal.show();
   }
 
-  // Salvataggio referto da modale
+  // Salva il referto usando i campi reali del DTO: diagnosis, therapy, notes.
   manageReportForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     manageReportAlert.innerHTML = '';
-    const appointmentId = parseInt(manageReportForm.appointmentId.value, 10);
+
     const data = {
-      appointmentId: appointmentId,
+      appointmentId: parseInt(manageReportForm.appointmentId.value, 10),
       diagnosis: manageReportForm.diagnosis.value.trim(),
-      description: manageReportForm.description.value.trim(),
+      therapy: manageReportForm.therapy.value.trim() || null,
+      notes: manageReportForm.notes.value.trim() || null,
     };
+
     try {
-      let resp;
-      if (currentReportId) {
-        resp = await apiFetch(`/medicalreports/${currentReportId}`, {
-          method: 'PUT',
-          body: JSON.stringify(data),
-        });
-      } else {
-        resp = await apiFetch('/medicalreports', {
-          method: 'POST',
-          body: JSON.stringify(data),
-        });
+      const response = currentReportId
+        ? await apiFetch(`/MedicalReports/${currentReportId}`, { method: 'PUT', body: JSON.stringify(data) })
+        : await apiFetch('/MedicalReports', { method: 'POST', body: JSON.stringify(data) });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore nel salvataggio del referto.'));
       }
-      if (!resp.ok) {
-        const msg = await resp.text();
-        throw new Error(msg || 'Errore nel salvataggio del referto');
-      }
+
       manageReportModal.hide();
       await loadAppointments();
       await loadReports();
     } catch (err) {
-      showAlert(manageReportAlert, err.message || 'Errore', 'danger');
+      showAlert(manageReportAlert, err.message || 'Errore nel salvataggio del referto.', 'danger');
     }
   });
 });

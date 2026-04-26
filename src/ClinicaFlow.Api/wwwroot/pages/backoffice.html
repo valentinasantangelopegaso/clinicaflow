@@ -54,15 +54,16 @@
     </div>
   </main>
 
-  <!-- Vista dashboard (nascosta di default) -->
+  <!-- Vista dashboard -->
   <main class="container py-4 d-none" id="dashboard-view">
-    <div class="dashboard-header d-flex justify-content-between align-items-center">
+    <div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap gap-3">
       <h1 class="h4 mb-0">Back Office</h1>
       <div class="d-flex align-items-center gap-3">
         <span>Utente: <strong id="admin-username"></strong></span>
-        <button class="btn btn-outline-light btn-sm" id="bo-logout-btn">Logout</button>
+        <button class="btn btn-outline-secondary btn-sm" id="bo-logout-btn" type="button">Logout</button>
       </div>
     </div>
+
     <ul class="nav nav-tabs" id="bo-tabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="patients-tab" data-bs-toggle="tab" data-bs-target="#patients-pane" type="button" role="tab">Pazienti</button>
@@ -83,122 +84,125 @@
         <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports-pane" type="button" role="tab">Referti</button>
       </li>
     </ul>
+
     <div class="tab-content pt-3" id="bo-tab-content">
-      <!-- Tab Pazienti -->
+      <!-- Pazienti -->
       <div class="tab-pane fade show active" id="patients-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Pazienti</h2>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPatientModal">Nuovo Paziente</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm" id="patients-table">
+          <table class="table table-striped table-sm align-middle" id="patients-table">
             <thead>
               <tr>
                 <th>Nome</th>
                 <th>Cognome</th>
                 <th>Codice Fiscale</th>
                 <th>Telefono</th>
-                <th></th>
+                <th>Email</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-      <!-- Tab Medici -->
+
+      <!-- Medici -->
       <div class="tab-pane fade" id="doctors-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Medici</h2>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDoctorModal">Nuovo Medico</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm" id="doctors-table">
+          <table class="table table-striped table-sm align-middle" id="doctors-table">
             <thead>
               <tr>
                 <th>Nome</th>
                 <th>Cognome</th>
+                <th>Codice Fiscale</th>
                 <th>Specialità</th>
-                <th>Telefono</th>
-                <th></th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-      <!-- Tab Specialità -->
+
+      <!-- Specialità -->
       <div class="tab-pane fade" id="specialties-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Specialità</h2>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSpecialtyModal">Nuova Specialità</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm" id="specialties-table">
+          <table class="table table-striped table-sm align-middle" id="specialties-table">
             <thead>
               <tr>
                 <th>Nome</th>
-                <th>Descrizione</th>
-                <th></th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-      <!-- Tab Slot -->
+
+      <!-- Slot -->
       <div class="tab-pane fade" id="slots-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Slot</h2>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSlotModal">Nuovo Slot</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm" id="slots-table">
+          <table class="table table-striped table-sm align-middle" id="slots-table">
             <thead>
               <tr>
                 <th>Medico</th>
                 <th>Data & Ora Inizio</th>
                 <th>Data & Ora Fine</th>
                 <th>Disponibile</th>
-                <th></th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-      <!-- Tab Appuntamenti -->
+
+      <!-- Appuntamenti -->
       <div class="tab-pane fade" id="appointments-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Appuntamenti</h2>
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAppointmentModal">Nuovo Appuntamento</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm" id="appointments-table">
+          <table class="table table-striped table-sm align-middle" id="appointments-table">
             <thead>
               <tr>
                 <th>Data & Ora</th>
                 <th>Paziente</th>
                 <th>Medico</th>
                 <th>Stato</th>
-                <th></th>
+                <th>Note</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
-      <!-- Tab Referti -->
+
+      <!-- Referti -->
       <div class="tab-pane fade" id="reports-pane" role="tabpanel">
         <h2 class="h5 mb-2">Referti</h2>
         <div class="table-responsive">
-          <table class="table table-striped table-sm" id="reports-table">
+          <table class="table table-striped table-sm align-middle" id="reports-table">
             <thead>
               <tr>
                 <th>Appuntamento</th>
                 <th>Paziente</th>
                 <th>Medico</th>
                 <th>Diagnosi</th>
-                <th></th>
+                <th>Terapia</th>
+                <th>Creato il</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -229,13 +233,20 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Codice Fiscale</label>
-              <input type="text" class="form-control" name="taxCode" required />
+              <input type="text" class="form-control" name="taxCode" maxlength="16" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Data di nascita</label>
+              <input type="date" class="form-control" name="birthDate" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Telefono</label>
-              <input type="text" class="form-control" name="phoneNumber" />
+              <input type="text" class="form-control" name="phone" />
             </div>
-            <!-- Commento: I campi username e password non sono attualmente supportati dal backend -->
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email" />
+            </div>
             <button type="submit" class="btn btn-primary">Crea</button>
           </form>
         </div>
@@ -264,11 +275,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Codice Fiscale</label>
-              <input type="text" class="form-control" name="taxCode" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Telefono</label>
-              <input type="text" class="form-control" name="phoneNumber" />
+              <input type="text" class="form-control" name="taxCode" maxlength="16" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Specialità</label>
@@ -295,10 +302,6 @@
             <div class="mb-3">
               <label class="form-label">Nome</label>
               <input type="text" class="form-control" name="name" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Descrizione</label>
-              <textarea class="form-control" name="description" rows="3"></textarea>
             </div>
             <button type="submit" class="btn btn-primary">Crea</button>
           </form>
@@ -355,6 +358,10 @@
             <div class="mb-3">
               <label class="form-label">Slot</label>
               <select class="form-select" name="slotId" id="appointment-slot-select" required></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Note</label>
+              <input type="text" class="form-control" name="notes" maxlength="500" />
             </div>
             <button type="submit" class="btn btn-primary">Crea</button>
           </form>

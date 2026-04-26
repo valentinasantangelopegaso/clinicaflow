@@ -56,39 +56,41 @@
 
   <!-- Dashboard medico -->
   <main class="container py-4 d-none" id="doctor-dashboard-view">
-    <div class="doctor-header d-flex justify-content-between align-items-center">
+    <div class="doctor-header d-flex justify-content-between align-items-center flex-wrap gap-3">
       <h1 class="h4 mb-0">Area Medico</h1>
       <div class="d-flex align-items-center gap-3">
         <span>Dr. <strong id="doctor-name"></strong></span>
-        <button class="btn btn-outline-light btn-sm" id="doctor-logout-btn">Logout</button>
+        <button class="btn btn-outline-light btn-sm" id="doctor-logout-btn" type="button">Logout</button>
       </div>
     </div>
-    <!-- Appointments -->
+
     <h2 class="h5 mb-2">Appuntamenti</h2>
     <div id="doctor-appointments-alert"></div>
     <div class="table-responsive">
-      <table class="table table-striped table-sm" id="doctor-appointments-table">
+      <table class="table table-striped table-sm align-middle" id="doctor-appointments-table">
         <thead>
           <tr>
             <th>Data & Ora</th>
             <th>Paziente</th>
             <th>Stato</th>
+            <th>Note</th>
             <th></th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
-    <!-- Reports -->
+
     <h2 class="h5 mt-4 mb-2">Referti</h2>
     <div id="doctor-reports-alert"></div>
     <div class="table-responsive">
-      <table class="table table-striped table-sm" id="doctor-reports-table">
+      <table class="table table-striped table-sm align-middle" id="doctor-reports-table">
         <thead>
           <tr>
             <th>Data Appuntamento</th>
             <th>Paziente</th>
             <th>Diagnosi</th>
+            <th>Terapia</th>
             <th></th>
           </tr>
         </thead>
@@ -111,11 +113,15 @@
             <input type="hidden" name="appointmentId" id="report-appointment-id" />
             <div class="mb-3">
               <label class="form-label">Diagnosi</label>
-              <input type="text" class="form-control" name="diagnosis" id="report-diagnosis" required />
+              <input type="text" class="form-control" name="diagnosis" id="report-diagnosis" maxlength="1000" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Descrizione</label>
-              <textarea class="form-control" name="description" id="report-description" rows="4" required></textarea>
+              <label class="form-label">Terapia</label>
+              <textarea class="form-control" name="therapy" id="report-therapy" rows="3" maxlength="1000"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Note</label>
+              <textarea class="form-control" name="notes" id="report-notes" rows="3" maxlength="2000"></textarea>
             </div>
             <button type="submit" class="btn btn-primary">Salva Referto</button>
           </form>
