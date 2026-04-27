@@ -90,7 +90,7 @@
       <div class="tab-pane fade show active" id="patients-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Pazienti</h2>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPatientModal">Nuovo Paziente</button>
+          <button class="btn btn-primary" id="new-patient-btn" type="button" data-bs-toggle="modal" data-bs-target="#createPatientModal">Nuovo Paziente</button>
         </div>
         <div class="table-responsive">
           <table class="table table-striped table-sm align-middle" id="patients-table">
@@ -101,6 +101,8 @@
                 <th>Codice Fiscale</th>
                 <th>Telefono</th>
                 <th>Email</th>
+                <th>Username</th>
+                <th>Azioni</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -112,7 +114,7 @@
       <div class="tab-pane fade" id="doctors-pane" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h2 class="h5 mb-0">Medici</h2>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDoctorModal">Nuovo Medico</button>
+          <button class="btn btn-primary" id="new-doctor-btn" type="button" data-bs-toggle="modal" data-bs-target="#createDoctorModal">Nuovo Medico</button>
         </div>
         <div class="table-responsive">
           <table class="table table-striped table-sm align-middle" id="doctors-table">
@@ -122,6 +124,8 @@
                 <th>Cognome</th>
                 <th>Codice Fiscale</th>
                 <th>Specialità</th>
+                <th>Username</th>
+                <th>Azioni</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -212,17 +216,18 @@
     </div>
   </main>
 
-  <!-- Modale Nuovo Paziente -->
+  <!-- Modale Paziente -->
   <div class="modal fade" id="createPatientModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Nuovo Paziente</h5>
+          <h5 class="modal-title" id="patient-modal-title">Nuovo Paziente</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div id="create-patient-alert"></div>
           <form id="create-patient-form">
+            <input type="hidden" name="id" />
             <div class="mb-3">
               <label class="form-label">Nome</label>
               <input type="text" class="form-control" name="firstName" required />
@@ -247,24 +252,36 @@
               <label class="form-label">Email</label>
               <input type="email" class="form-control" name="email" />
             </div>
-            <button type="submit" class="btn btn-primary">Crea</button>
+            <hr />
+            <h6 class="mb-3">Credenziali area paziente</h6>
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" maxlength="100" autocomplete="off" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" name="password" minlength="8" maxlength="100" autocomplete="new-password" />
+              <div class="form-text" id="patient-password-help">In modifica lasciare vuoto per mantenere la password attuale.</div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="patient-submit-btn">Crea</button>
           </form>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modale Nuovo Medico -->
+  <!-- Modale Medico -->
   <div class="modal fade" id="createDoctorModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Nuovo Medico</h5>
+          <h5 class="modal-title" id="doctor-modal-title">Nuovo Medico</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div id="create-doctor-alert"></div>
           <form id="create-doctor-form">
+            <input type="hidden" name="id" />
             <div class="mb-3">
               <label class="form-label">Nome</label>
               <input type="text" class="form-control" name="firstName" required />
@@ -281,7 +298,18 @@
               <label class="form-label">Specialità</label>
               <select class="form-select" name="specialtyId" id="doctor-specialty-select" required></select>
             </div>
-            <button type="submit" class="btn btn-primary">Crea</button>
+            <hr />
+            <h6 class="mb-3">Credenziali area medico</h6>
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" maxlength="100" autocomplete="off" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" name="password" minlength="8" maxlength="100" autocomplete="new-password" />
+              <div class="form-text" id="doctor-password-help">In modifica lasciare vuoto per mantenere la password attuale.</div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="doctor-submit-btn">Crea</button>
           </form>
         </div>
       </div>

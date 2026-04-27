@@ -4,6 +4,7 @@ using ClinicaFlow.Api.Controllers.Base;
 using ClinicaFlow.Api.Domain.Entities;
 using ClinicaFlow.Api.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
@@ -23,6 +24,11 @@ public class DoctorsController : AuthenticatedControllerBase
     /// Contesto Entity Framework utilizzato per l'accesso ai dati.
     /// </summary>
     private readonly ClinicaFlowDbContext _context;
+
+    /// <summary>
+    /// Componente utilizzato per salvare le password in forma hashata.
+    /// </summary>
+    private readonly PasswordHasher<UserAccount> _passwordHasher = new();
 
     /// <summary>
     /// Inizializza una nuova istanza del controller dei medici.
@@ -62,7 +68,11 @@ public class DoctorsController : AuthenticatedControllerBase
                 LastName = d.LastName,
                 TaxCode = d.TaxCode,
                 SpecialtyId = d.SpecialtyId,
-                SpecialtyName = d.Specialty.Name
+                SpecialtyName = d.Specialty.Name,
+                Username = _context.UserAccounts
+                    .Where(u => u.DoctorId == d.Id && u.Role == "Doctor")
+                    .Select(u => u.Username)
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
@@ -105,7 +115,11 @@ public class DoctorsController : AuthenticatedControllerBase
                 LastName = d.LastName,
                 TaxCode = d.TaxCode,
                 SpecialtyId = d.SpecialtyId,
-                SpecialtyName = d.Specialty.Name
+                SpecialtyName = d.Specialty.Name,
+                Username = _context.UserAccounts
+                    .Where(u => u.DoctorId == d.Id && u.Role == "Doctor")
+                    .Select(u => u.Username)
+                    .FirstOrDefault()
             })
             .FirstOrDefaultAsync();
 
@@ -150,7 +164,11 @@ public class DoctorsController : AuthenticatedControllerBase
                 LastName = d.LastName,
                 TaxCode = d.TaxCode,
                 SpecialtyId = d.SpecialtyId,
-                SpecialtyName = d.Specialty.Name
+                SpecialtyName = d.Specialty.Name,
+                Username = _context.UserAccounts
+                    .Where(u => u.DoctorId == d.Id && u.Role == "Doctor")
+                    .Select(u => u.Username)
+                    .FirstOrDefault()
             })
             .FirstOrDefaultAsync();
 
@@ -163,7 +181,7 @@ public class DoctorsController : AuthenticatedControllerBase
     }
 
     /// <summary>
-    /// Crea un nuovo medico.
+    /// Crea un nuovo medico e, se fornite le credenziali, crea anche l'account applicativo Doctor.
     /// Operazione riservata al Back Office.
     /// </summary>
     /// <param name="dto">Dati del medico da creare.</param>
@@ -172,12 +190,12 @@ public class DoctorsController : AuthenticatedControllerBase
     [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Crea un nuovo medico",
-        Description = "Inserisce un nuovo medico nel sistema associandolo a una specializzazione esistente. Endpoint riservato al ruolo Admin.")]
+        Description = "Inserisce un nuovo medico nel sistema e consente al Back Office di creare contestualmente le credenziali di accesso del medico.")]
     [SwaggerResponse(StatusCodes.Status201Created, "Medico creato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida o dati di input non validi.")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
-    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un medico con lo stesso codice fiscale.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un medico o un account con gli stessi dati identificativi.")]
     [ProducesResponseType(typeof(DoctorReadDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -201,6 +219,15 @@ public class DoctorsController : AuthenticatedControllerBase
             return ValidationProblem(ModelState);
         }
 
+        var normalizedUsername = NormalizeUsername(dto.Username);
+        var password = NormalizePassword(dto.Password);
+        var hasCredentials = HasCredentialInput(normalizedUsername, password);
+
+        if (hasCredentials && !HasCompleteCredentials(normalizedUsername, password))
+        {
+            return BadRequest("Per creare l'account del medico sono obbligatori sia username sia password.");
+        }
+
         var duplicateTaxCode = await _context.Doctors
             .AnyAsync(d => d.TaxCode == normalizedTaxCode);
 
@@ -208,6 +235,19 @@ public class DoctorsController : AuthenticatedControllerBase
         {
             return Conflict("Esiste già un medico con lo stesso codice fiscale.");
         }
+
+        if (!string.IsNullOrWhiteSpace(normalizedUsername))
+        {
+            var usernameExists = await _context.UserAccounts
+                .AnyAsync(u => u.Username == normalizedUsername);
+
+            if (usernameExists)
+            {
+                return Conflict("Esiste già un account con lo stesso username.");
+            }
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
         var doctor = new Doctor
         {
@@ -220,25 +260,26 @@ public class DoctorsController : AuthenticatedControllerBase
         _context.Doctors.Add(doctor);
         await _context.SaveChangesAsync();
 
-        var result = await _context.Doctors
-            .Include(d => d.Specialty)
-            .Where(d => d.Id == doctor.Id)
-            .Select(d => new DoctorReadDto
-            {
-                Id = d.Id,
-                FirstName = d.FirstName,
-                LastName = d.LastName,
-                TaxCode = d.TaxCode,
-                SpecialtyId = d.SpecialtyId,
-                SpecialtyName = d.Specialty.Name
-            })
+        if (hasCredentials && normalizedUsername is not null && password is not null)
+        {
+            CreateDoctorAccount(doctor.Id, normalizedUsername, password);
+            await _context.SaveChangesAsync();
+        }
+
+        await transaction.CommitAsync();
+
+        var specialtyName = await _context.Specialties
+            .Where(s => s.Id == doctor.SpecialtyId)
+            .Select(s => s.Name)
             .FirstAsync();
+
+        var result = MapToReadDto(doctor, specialtyName, normalizedUsername);
 
         return CreatedAtAction(nameof(GetById), new { id = doctor.Id }, result);
     }
 
     /// <summary>
-    /// Aggiorna un medico esistente.
+    /// Aggiorna un medico esistente e consente al Back Office di aggiornare o creare l'account di accesso associato.
     /// Operazione riservata al Back Office.
     /// </summary>
     /// <param name="id">Identificativo del medico da aggiornare.</param>
@@ -248,13 +289,13 @@ public class DoctorsController : AuthenticatedControllerBase
     [Authorize(Roles = "Admin")]
     [SwaggerOperation(
         Summary = "Aggiorna un medico",
-        Description = "Aggiorna i dati anagrafici e la specializzazione di un medico esistente. Endpoint riservato al ruolo Admin.")]
+        Description = "Aggiorna i dati anagrafici e la specializzazione di un medico esistente e consente la modifica delle credenziali di accesso associate.")]
     [SwaggerResponse(StatusCodes.Status204NoContent, "Medico aggiornato correttamente.")]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "Specializzazione non valida o dati di input non validi.")]
     [SwaggerResponse(StatusCodes.Status401Unauthorized, "Utente non autenticato.")]
     [SwaggerResponse(StatusCodes.Status403Forbidden, "Utente non autorizzato.")]
     [SwaggerResponse(StatusCodes.Status404NotFound, "Medico non trovato.")]
-    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un altro medico con lo stesso codice fiscale.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "Esiste già un altro medico o account con gli stessi dati identificativi.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -294,12 +335,39 @@ public class DoctorsController : AuthenticatedControllerBase
             return Conflict("Esiste già un altro medico con lo stesso codice fiscale.");
         }
 
+        var normalizedUsername = NormalizeUsername(dto.Username);
+        var password = NormalizePassword(dto.Password);
+
+        var existingAccount = await _context.UserAccounts
+            .FirstOrDefaultAsync(u => u.DoctorId == id && u.Role == "Doctor");
+
+        if (!string.IsNullOrWhiteSpace(normalizedUsername))
+        {
+            var duplicateUsername = await _context.UserAccounts
+                .AnyAsync(u => u.Id != (existingAccount == null ? 0 : existingAccount.Id) && u.Username == normalizedUsername);
+
+            if (duplicateUsername)
+            {
+                return Conflict("Esiste già un account con lo stesso username.");
+            }
+        }
+
+        if (existingAccount is null && HasCredentialInput(normalizedUsername, password) && !HasCompleteCredentials(normalizedUsername, password))
+        {
+            return BadRequest("Per creare l'account del medico sono obbligatori sia username sia password.");
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
         doctor.FirstName = dto.FirstName;
         doctor.LastName = dto.LastName;
         doctor.TaxCode = normalizedTaxCode;
         doctor.SpecialtyId = dto.SpecialtyId;
 
+        UpsertDoctorAccount(id, existingAccount, normalizedUsername, password);
+
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return NoContent();
     }
@@ -349,5 +417,104 @@ public class DoctorsController : AuthenticatedControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Crea un account di tipo Doctor collegato al medico indicato.
+    /// </summary>
+    private void CreateDoctorAccount(int doctorId, string username, string password)
+    {
+        var account = new UserAccount
+        {
+            Username = username,
+            Role = "Doctor",
+            DoctorId = doctorId,
+            IsActive = true
+        };
+
+        account.PasswordHash = _passwordHasher.HashPassword(account, password);
+        _context.UserAccounts.Add(account);
+    }
+
+    /// <summary>
+    /// Aggiorna o crea l'account applicativo collegato al medico.
+    /// </summary>
+    private void UpsertDoctorAccount(int doctorId, UserAccount? existingAccount, string? username, string? password)
+    {
+        if (existingAccount is null)
+        {
+            if (!HasCompleteCredentials(username, password))
+            {
+                return;
+            }
+
+            CreateDoctorAccount(doctorId, username!, password!);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            existingAccount.Username = username;
+        }
+
+        if (!string.IsNullOrWhiteSpace(password))
+        {
+            existingAccount.PasswordHash = _passwordHasher.HashPassword(existingAccount, password);
+        }
+
+        existingAccount.IsActive = true;
+    }
+
+    /// <summary>
+    /// Normalizza lo username rimuovendo gli spazi non significativi.
+    /// </summary>
+    private static string? NormalizeUsername(string? username)
+    {
+        return string.IsNullOrWhiteSpace(username) ? null : username.Trim();
+    }
+
+    /// <summary>
+    /// Normalizza la password solo per verificare la presenza del valore.
+    /// </summary>
+    private static string? NormalizePassword(string? password)
+    {
+        return string.IsNullOrWhiteSpace(password) ? null : password;
+    }
+
+    /// <summary>
+    /// Verifica se almeno uno tra username e password è stato valorizzato.
+    /// </summary>
+    private static bool HasCredentialInput(string? username, string? password)
+    {
+        return !string.IsNullOrWhiteSpace(username) || !string.IsNullOrWhiteSpace(password);
+    }
+
+    /// <summary>
+    /// Verifica se username e password sono entrambi valorizzati.
+    /// </summary>
+    private static bool HasCompleteCredentials(string? username, string? password)
+    {
+        return !string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password);
+    }
+
+    /// <summary>
+    /// Mappa un'entità Doctor nel relativo DTO di lettura.
+    /// </summary>
+    /// <param name="doctor">Entità medico da convertire.</param>
+    /// <param name="specialtyName">Nome della specializzazione associata.</param>
+    /// <param name="username">Username dell'account associato, se presente.</param>
+    /// <returns>DTO di lettura del medico.</returns>
+    private static DoctorReadDto MapToReadDto(Doctor doctor, string specialtyName, string? username)
+    {
+        return new DoctorReadDto
+        {
+            Id = doctor.Id,
+            FirstName = doctor.FirstName,
+            LastName = doctor.LastName,
+            TaxCode = doctor.TaxCode,
+            SpecialtyId = doctor.SpecialtyId,
+            SpecialtyName = specialtyName,
+            Username = username
+        };
     }
 }

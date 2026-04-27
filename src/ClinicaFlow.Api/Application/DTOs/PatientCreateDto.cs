@@ -4,9 +4,10 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ClinicaFlow.Api.Application.DTOs;
 
 /// <summary>
-/// DTO utilizzato per la creazione di un paziente.
+/// DTO utilizzato per la creazione e l'aggiornamento di un paziente.
+/// Include anche le credenziali applicative opzionali gestite dal Back Office.
 /// </summary>
-[SwaggerSchema(Description = "DTO utilizzato per la creazione di un paziente.")]
+[SwaggerSchema(Description = "DTO utilizzato per la creazione e l'aggiornamento di un paziente.")]
 public class PatientCreateDto
 {
     /// <summary>
@@ -55,4 +56,20 @@ public class PatientCreateDto
     [StringLength(150, ErrorMessage = "L'indirizzo email non può superare i 150 caratteri.")]
     [SwaggerSchema(Description = "Indirizzo email del paziente.", Nullable = true)]
     public string? Email { get; set; }
+
+    /// <summary>
+    /// Username dell'account applicativo associato al paziente.
+    /// Se valorizzato dal Back Office, viene creato o aggiornato l'account di accesso.
+    /// </summary>
+    [StringLength(100, ErrorMessage = "Lo username non può superare i 100 caratteri.")]
+    [SwaggerSchema(Description = "Username dell'account applicativo associato al paziente.", Nullable = true)]
+    public string? Username { get; set; }
+
+    /// <summary>
+    /// Password dell'account applicativo associato al paziente.
+    /// In aggiornamento è facoltativa: se vuota, la password esistente non viene modificata.
+    /// </summary>
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "La password deve contenere almeno 8 caratteri e non può superare i 100 caratteri.")]
+    [SwaggerSchema(Description = "Password dell'account applicativo associato al paziente.", Nullable = true)]
+    public string? Password { get; set; }
 }

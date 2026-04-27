@@ -43,4 +43,10 @@ public class DoctorReadDto
     /// </summary>
     [SwaggerSchema(Description = "Nome della specializzazione del medico.")]
     public string SpecialtyName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Username dell'account applicativo associato al medico.
+    /// </summary>
+    [SwaggerSchema(Description = "Username dell'account applicativo associato al medico.", Nullable = true)]
+    public string? Username { get; set; }
 }

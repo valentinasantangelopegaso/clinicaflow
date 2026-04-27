@@ -4,9 +4,10 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ClinicaFlow.Api.Application.DTOs;
 
 /// <summary>
-/// DTO utilizzato per la creazione di un medico.
+/// DTO utilizzato per la creazione e l'aggiornamento di un medico.
+/// Include anche le credenziali applicative opzionali gestite dal Back Office.
 /// </summary>
-[SwaggerSchema(Description = "DTO utilizzato per la creazione di un medico.")]
+[SwaggerSchema(Description = "DTO utilizzato per la creazione e l'aggiornamento di un medico.")]
 public class DoctorCreateDto
 {
     /// <summary>
@@ -38,4 +39,20 @@ public class DoctorCreateDto
     [Required(ErrorMessage = "La specializzazione del medico è obbligatoria.")]
     [SwaggerSchema(Description = "Identificativo della specializzazione associata al medico.")]
     public int SpecialtyId { get; set; }
+
+    /// <summary>
+    /// Username dell'account applicativo associato al medico.
+    /// Se valorizzato dal Back Office, viene creato o aggiornato l'account di accesso.
+    /// </summary>
+    [StringLength(100, ErrorMessage = "Lo username non può superare i 100 caratteri.")]
+    [SwaggerSchema(Description = "Username dell'account applicativo associato al medico.", Nullable = true)]
+    public string? Username { get; set; }
+
+    /// <summary>
+    /// Password dell'account applicativo associato al medico.
+    /// In aggiornamento è facoltativa: se vuota, la password esistente non viene modificata.
+    /// </summary>
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "La password deve contenere almeno 8 caratteri e non può superare i 100 caratteri.")]
+    [SwaggerSchema(Description = "Password dell'account applicativo associato al medico.", Nullable = true)]
+    public string? Password { get; set; }
 }

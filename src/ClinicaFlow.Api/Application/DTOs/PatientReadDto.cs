@@ -49,4 +49,10 @@ public class PatientReadDto
     /// </summary>
     [SwaggerSchema(Description = "Indirizzo email del paziente.", Nullable = true)]
     public string? Email { get; set; }
+
+    /// <summary>
+    /// Username dell'account applicativo associato al paziente.
+    /// </summary>
+    [SwaggerSchema(Description = "Username dell'account applicativo associato al paziente.", Nullable = true)]
+    public string? Username { get; set; }
 }
