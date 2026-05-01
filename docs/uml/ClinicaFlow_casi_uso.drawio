@@ -1,0 +1,203 @@
+<mxfile host="Electron" agent="ChatGPT" pages="3">
+  <diagram id="3407b7d40192" name="UC - Back Office">
+    <mxGraphModel dx="1147" dy="705" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bo_sys" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;dashed=1;fontStyle=1;fontSize=14;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;" value="ClinicaFlow - Area Back Office" vertex="1">
+          <mxGeometry height="660" width="730" x="220" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=13;" value="Back Office" vertex="1">
+          <mxGeometry height="100" width="60" x="70" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_login" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Autenticarsi" vertex="1">
+          <mxGeometry height="55" width="210" x="240" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_pat" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Gestire anagrafiche pazienti" vertex="1">
+          <mxGeometry height="55" width="210" x="470" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_doc" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Gestire anagrafiche medici" vertex="1">
+          <mxGeometry height="55" width="210" x="480" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_spec" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Gestire specializzazioni" vertex="1">
+          <mxGeometry height="55" width="210" x="300" y="342.5" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_slot" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Gestire disponibilità medici" vertex="1">
+          <mxGeometry height="55" width="210" x="720" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_app" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Prenotare appuntamento" vertex="1">
+          <mxGeometry height="55" width="210" x="510" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_status" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Aggiornare stato appuntamento" vertex="1">
+          <mxGeometry height="55" width="210" x="585" y="632.5" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_reports" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Consultare referti medici" vertex="1">
+          <mxGeometry height="55" width="210" x="220" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_accounts" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Gestire account applicativi" vertex="1">
+          <mxGeometry height="55" width="210" x="450" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_rules" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Applicare regole di coerenza" vertex="1">
+          <mxGeometry height="55" width="210" x="670" y="386" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l0" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l1" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_pat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l2" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_doc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l3" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_spec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l4" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_slot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l5" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l6" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l7" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_reports">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_l8" edge="1" parent="1" source="bo_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="bo_accounts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_inc0" edge="1" parent="1" source="bo_slot" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="bo_rules" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_inc1" edge="1" parent="1" source="bo_app" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="bo_rules" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_inc2" edge="1" parent="1" source="bo_status" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="bo_rules" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_inc3" edge="1" parent="1" source="bo_accounts" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="bo_rules" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bo_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=left;verticalAlign=top;spacing=8;" value="Note progettuali:&lt;div&gt;- Il Back Office governa le entità principali.&lt;/div&gt;&lt;div&gt;- Le operazioni rispettano i vincoli su slot, appuntamenti e account. - L’autenticazione è basata su account applicativo/JWT.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="370" x="70" y="640" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="f2d49bb346df" name="UC - Medico">
+    <mxGraphModel dx="1075" dy="661" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="md_sys" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;dashed=1;fontStyle=1;fontSize=14;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;" value="ClinicaFlow - Area Medico" vertex="1">
+          <mxGeometry height="520" width="550" x="220" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="md_actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=13;" value="Medico" vertex="1">
+          <mxGeometry height="100" width="60" x="80" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="md_login" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Autenticarsi" vertex="1">
+          <mxGeometry height="55" width="210" x="230" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="md_profile" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Visualizzare profilo medico" vertex="1">
+          <mxGeometry height="55" width="210" x="300" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="md_apps" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Consultare appuntamenti assegnati" vertex="1">
+          <mxGeometry height="55" width="210" x="300" y="322.5" as="geometry" />
+        </mxCell>
+        <mxCell id="md_status" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Aggiornare stato visita" vertex="1">
+          <mxGeometry height="55" width="210" x="530" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="md_report" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Creare referto medico" vertex="1">
+          <mxGeometry height="55" width="210" x="530" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="md_read_report" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Consultare referti prodotti" vertex="1">
+          <mxGeometry height="55" width="210" x="260" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="md_rules" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Verificare appuntamento completato" vertex="1">
+          <mxGeometry height="55" width="210" x="530" y="322.5" as="geometry" />
+        </mxCell>
+        <mxCell id="md_l0" edge="1" parent="1" source="md_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="md_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_l1" edge="1" parent="1" source="md_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="md_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_l2" edge="1" parent="1" source="md_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="md_apps">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_l3" edge="1" parent="1" source="md_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="md_status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_l4" edge="1" parent="1" source="md_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="md_report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_l5" edge="1" parent="1" source="md_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="md_read_report">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_inc1" edge="1" parent="1" source="md_report" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="md_rules" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_inc2" edge="1" parent="1" source="md_status" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="md_rules" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="md_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=left;verticalAlign=top;spacing=8;" value="Note progettuali:&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- Un referto può essere creato solo se la visita risulta completata e se non esiste già un referto per lo stesso appuntamento.&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="360" x="80" y="520" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="2bde951ac462" name="UC - Paziente">
+    <mxGraphModel dx="1075" dy="661" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="pt_sys" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;dashed=1;fontStyle=1;fontSize=14;align=left;verticalAlign=top;spacingLeft=10;spacingTop=8;" value="ClinicaFlow - Area Paziente" vertex="1">
+          <mxGeometry height="470" width="580" x="220" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=13;" value="Paziente" vertex="1">
+          <mxGeometry height="100" width="60" x="80" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_login" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Autenticarsi" vertex="1">
+          <mxGeometry height="55" width="210" x="240" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_profile" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Visualizzare profilo personale" vertex="1">
+          <mxGeometry height="55" width="210" x="260" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_apps" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Consultare appuntamenti" vertex="1">
+          <mxGeometry height="55" width="210" x="260" y="312.5" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_reports" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Consultare referti" vertex="1">
+          <mxGeometry height="55" width="210" x="260" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_scope" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="Accedere solo ai propri dati" vertex="1">
+          <mxGeometry height="55" width="210" x="570" y="312.5" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_l0" edge="1" parent="1" source="pt_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="pt_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_l1" edge="1" parent="1" source="pt_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="pt_profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_l2" edge="1" parent="1" source="pt_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="pt_apps">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_l3" edge="1" parent="1" source="pt_actor" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" target="pt_reports">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_inc0" edge="1" parent="1" source="pt_profile" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="pt_scope" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_inc1" edge="1" parent="1" source="pt_apps" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="pt_scope" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_inc2" edge="1" parent="1" source="pt_reports" style="endArrow=open;html=1;rounded=0;dashed=1;fontSize=11;" target="pt_scope" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pt_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=left;verticalAlign=top;spacing=8;" value="Perimetro paziente:&amp;nbsp;&lt;div&gt;- Consultazione dei dati personali, appuntamenti e referti associati al proprio account.&lt;/div&gt;&lt;div&gt;- Nessuna gestione amministrativa.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="470" x="80" y="480" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

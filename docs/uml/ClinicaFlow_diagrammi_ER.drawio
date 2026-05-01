@@ -1,0 +1,137 @@
+<mxfile host="app.diagrams.net" agent="ChatGPT" pages="3">
+  <diagram id="f3e4eecb7512" name="ER - Vista Paziente">
+    <mxGraphModel dx="1720" dy="1052" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Patients" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Patients&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FirstName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;LastName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;TaxCode : nvarchar(16) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;BirthDate : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Phone : nvarchar(30) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Email : nvarchar(150) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ TaxCode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="280" x="60" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="Appointments" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Appointments&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK PatientId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK DoctorId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK AvailabilitySlotId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;AppointmentDate : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Status : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Notes : nvarchar(500) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ AvailabilitySlotId&lt;/div&gt;" vertex="1">
+          <mxGeometry height="250" width="310" x="460" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="MedicalReports" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;MedicalReports&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK AppointmentId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Diagnosis : nvarchar(1000) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Therapy : nvarchar(1000) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Notes : nvarchar(2000) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;CreatedAt : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ AppointmentId&lt;/div&gt;" vertex="1">
+          <mxGeometry height="235" width="300" x="880" y="202.5" as="geometry" />
+        </mxCell>
+        <mxCell id="AvailabilitySlots" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;AvailabilitySlots&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK DoctorId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;StartDateTime : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;EndDateTime : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;IsAvailable : bit NOT NULL&lt;/div&gt;" vertex="1">
+          <mxGeometry height="180" width="300" x="880" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctors" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Doctors&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK SpecialtyId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FirstName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;LastName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;TaxCode : nvarchar(16) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Email : nvarchar(150) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ TaxCode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="310" x="460" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="AppointmentStatus" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;AppointmentStatus&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;0 = Scheduled&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;1 = Completed&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;2 = Cancelled&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;&lt;i&gt;Valori memorizzati nel campo Appointments.Status&lt;/i&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="115" width="280" x="60" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pat_app" edge="1" parent="1" source="Patients" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="Appointments" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_rep" edge="1" parent="1" source="Appointments" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="MedicalReports" value="1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_slot" edge="1" parent="1" source="Appointments" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="AvailabilitySlots" value="1 : 1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_doc_app" edge="1" parent="1" source="Doctors" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="Appointments" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_doc_slot" edge="1" parent="1" source="Doctors" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="AvailabilitySlots" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_status_app" edge="1" parent="1" source="AppointmentStatus" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;dashed=1;" target="Appointments" value="lookup logico">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="patient_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontSize=11;" value="&lt;b&gt;Vista centrata sul paziente&lt;/b&gt;&lt;br&gt;Mostra il percorso dati: anagrafica paziente → prenotazioni → eventuale referto.&lt;br&gt;&lt;br&gt;La relazione Appointments–AvailabilitySlots è 1:1 perché AvailabilitySlotId è indicizzato come univoco." vertex="1">
+          <mxGeometry height="110" width="1120" x="60" y="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="f8876f4cf8f1" name="ER - Vista Medico">
+    <mxGraphModel dx="1720" dy="1052" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Specialties_d" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Specialties&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Name : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ Name&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="280" x="100" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctors_d" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Doctors&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK SpecialtyId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FirstName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;LastName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;TaxCode : nvarchar(16) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Email : nvarchar(150) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ TaxCode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="320" x="460" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="AvailabilitySlots_d" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;AvailabilitySlots&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK DoctorId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;StartDateTime : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;EndDateTime : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;IsAvailable : bit NOT NULL&lt;/div&gt;" vertex="1">
+          <mxGeometry height="180" width="330" x="870" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="Appointments_d" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Appointments&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK PatientId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK DoctorId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK AvailabilitySlotId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;AppointmentDate : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Status : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Notes : nvarchar(500) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ AvailabilitySlotId&lt;/div&gt;" vertex="1">
+          <mxGeometry height="250" width="320" x="460" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="Patients_d" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Patients&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FirstName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;LastName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;TaxCode : nvarchar(16) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;BirthDate : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Phone : nvarchar(30) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Email : nvarchar(150) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ TaxCode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="280" x="100" y="585" as="geometry" />
+        </mxCell>
+        <mxCell id="MedicalReports_d" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;MedicalReports&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK AppointmentId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Diagnosis : nvarchar(1000) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Therapy : nvarchar(1000) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Notes : nvarchar(2000) NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;CreatedAt : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ AppointmentId&lt;/div&gt;" vertex="1">
+          <mxGeometry height="235" width="330" x="870" y="577.5" as="geometry" />
+        </mxCell>
+        <mxCell id="e_spec_doc" edge="1" parent="1" source="Specialties_d" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="Doctors_d" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_doc_slot_d" edge="1" parent="1" source="Doctors_d" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="AvailabilitySlots_d" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_doc_app_d" edge="1" parent="1" source="Doctors_d" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="Appointments_d" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_slot_app_d" edge="1" parent="1" source="AvailabilitySlots_d" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="Appointments_d" value="1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pat_app_d" edge="1" parent="1" source="Patients_d" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="Appointments_d" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_rep_d" edge="1" parent="1" source="Appointments_d" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;" target="MedicalReports_d" value="1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="doctor_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontSize=11;" value="&lt;b&gt;Vista centrata sul medico&lt;/b&gt;&lt;br&gt;Mostra specializzazione, agenda del medico, visite prenotate e referti prodotti.&lt;br&gt;&lt;br&gt;Le cancellazioni sono configurate con DeleteBehavior.Restrict sulle relazioni operative principali, mentre il referto è in cascade rispetto all&#39;appuntamento." vertex="1">
+          <mxGeometry height="110" width="1100" x="100" y="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="c9e8c4f68698" name="ER - Vista Autenticazione">
+    <mxGraphModel dx="1433" dy="877" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="UserAccounts_a" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;UserAccounts&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Username : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;PasswordHash : nvarchar(max) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Role : nvarchar(20) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK DoctorId : int NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK PatientId : int NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;IsActive : bit NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ Username&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ DoctorId WHERE DoctorId IS NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ PatientId WHERE PatientId IS NOT NULL&lt;/div&gt;" vertex="1">
+          <mxGeometry height="260" width="380" x="470" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="Doctors_a" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Doctors&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;TaxCode : nvarchar(16) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FirstName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;LastName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FK SpecialtyId : int NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ TaxCode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="300" x="60" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="Patients_a" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Patients&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;PK Id : int&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;TaxCode : nvarchar(16) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;FirstName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;LastName : nvarchar(100) NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;BirthDate : datetime2 NOT NULL&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;UQ TaxCode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="300" x="60" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="Roles_a" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;Ruoli applicativi&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;Admin&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Doctor&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;Patient&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;&lt;i&gt;Role è una stringa, non una tabella fisica&lt;/i&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="260" x="470" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="AuthDtos_a" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;verticalAlign=top;spacingTop=8;fontSize=12;strokeWidth=1;" value="&lt;div&gt;&lt;b&gt;DTO non persistenti&lt;/b&gt;&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;LoginDto&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;- Username&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;- Password&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;AuthResponseDto&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;- Token&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;- Role&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;- DoctorId?&lt;/div&gt;&lt;div align=&#39;left&#39;&gt;- PatientId?&lt;/div&gt;&lt;hr size=&#39;1&#39;&gt;&lt;div align=&#39;left&#39;&gt;&lt;i&gt;Contratti API, non tabelle del database&lt;/i&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="205" width="380" x="470" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="e_user_doctor" edge="1" parent="1" source="Doctors_a" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;entryX=0.001;entryY=0.364;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.997;exitY=0.638;exitDx=0;exitDy=0;exitPerimeter=0;" target="UserAccounts_a" value="0..1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_user_patient" edge="1" parent="1" source="UserAccounts_a" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;entryX=1;entryY=0.25;entryDx=0;entryDy=0;exitX=0;exitY=0.798;exitDx=0;exitDy=0;exitPerimeter=0;" target="Patients_a" value="0..1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_user_role" edge="1" parent="1" source="UserAccounts_a" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;dashed=1;exitX=0.345;exitY=1.014;exitDx=0;exitDy=0;exitPerimeter=0;" target="Roles_a" value="usa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_user_dto" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;orthogonalLoop=1;jettySize=auto;fontSize=12;strokeWidth=2;dashed=1;" value="login/response">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="430" as="sourcePoint" />
+            <mxPoint x="790" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="auth_note" parent="1" style="shape=note;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontSize=11;" value="&lt;b&gt;Vista autenticazione&lt;/b&gt;&lt;br&gt;Ogni account può essere amministrativo oppure collegato a un solo medico o a un solo paziente.&lt;br&gt;&lt;br&gt;Gli indici univoci filtrati impediscono che più account puntino allo stesso medico o allo stesso paziente." vertex="1">
+          <mxGeometry height="110" width="820" x="60" y="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
