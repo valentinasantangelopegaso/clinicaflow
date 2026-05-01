@@ -199,7 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${valueOrDash(patient.email)}</td>
         <td>${valueOrDash(patient.username)}</td>
         <td>
-          <button type="button" class="btn btn-sm btn-outline-primary" data-action="edit-patient" data-id="${patient.id}">Modifica</button>
+          <button type="button" class="btn btn-sm btn-outline-primary me-1" data-action="edit-patient" data-id="${patient.id}">Modifica</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-patient" data-id="${patient.id}">Elimina</button>
         </td>
       `;
       patientsTableBody.appendChild(row);
@@ -221,7 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     specialtiesCache.forEach((specialty) => {
       const row = document.createElement('tr');
-      row.innerHTML = `<td>${specialty.name}</td>`;
+      row.innerHTML = `
+        <td>${specialty.name}</td>
+        <td>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-specialty" data-id="${specialty.id}">Elimina</button>
+        </td>
+      `;
       specialtiesTableBody.appendChild(row);
 
       const option = document.createElement('option');
@@ -248,7 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${doctor.specialtyName}</td>
         <td>${valueOrDash(doctor.username)}</td>
         <td>
-          <button type="button" class="btn btn-sm btn-outline-primary" data-action="edit-doctor" data-id="${doctor.id}">Modifica</button>
+          <button type="button" class="btn btn-sm btn-outline-primary me-1" data-action="edit-doctor" data-id="${doctor.id}">Modifica</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-doctor" data-id="${doctor.id}">Elimina</button>
         </td>
       `;
       doctorsTableBody.appendChild(row);
@@ -275,6 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${formatDateTime(slot.startTime)}</td>
         <td>${formatDateTime(slot.endTime)}</td>
         <td><span class="badge ${slot.isAvailable ? 'text-bg-success' : 'text-bg-secondary'}">${slot.isAvailable ? 'Sì' : 'No'}</span></td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            data-action="delete-slot"
+            data-id="${slot.id}"
+            ${slot.isAvailable ? '' : 'disabled title="Slot già prenotato"'}
+          >
+            Elimina
+          </button>
+        </td>
       `;
       slotsTableBody.appendChild(row);
 
@@ -296,12 +314,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     appointmentsCache.forEach((appointment) => {
       const row = document.createElement('tr');
+      const canCancel = Number(appointment.status) === 0;
+
       row.innerHTML = `
         <td>${formatDateTime(appointment.startTime)}</td>
         <td>${appointment.patientFullName}</td>
         <td>${appointment.doctorFullName}</td>
         <td>${statusText(appointment.status)}</td>
         <td>${valueOrDash(appointment.notes)}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            data-action="cancel-appointment"
+            data-id="${appointment.id}"
+            ${canCancel ? '' : 'disabled title="Solo gli appuntamenti pianificati possono essere annullati"'}
+          >
+            Annulla
+          </button>
+        </td>
       `;
       appointmentsTableBody.appendChild(row);
     });
@@ -331,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Intercetta le azioni sulle righe paziente.
-  patientsTableBody?.addEventListener('click', (e) => {
+  patientsTableBody?.addEventListener('click', async (e) => {
     const button = e.target.closest('button');
     if (!button) return;
 
@@ -344,10 +375,14 @@ document.addEventListener('DOMContentLoaded', () => {
         preparePatientEdit(patient);
       }
     }
+
+    if (action === 'delete-patient') {
+      await deletePatient(id);
+    }
   });
 
   // Intercetta le azioni sulle righe medico.
-  doctorsTableBody?.addEventListener('click', (e) => {
+  doctorsTableBody?.addEventListener('click', async (e) => {
     const button = e.target.closest('button');
     if (!button) return;
 
@@ -360,7 +395,127 @@ document.addEventListener('DOMContentLoaded', () => {
         prepareDoctorEdit(doctor);
       }
     }
+
+    if (action === 'delete-doctor') {
+      await deleteDoctor(id);
+    }
   });
+
+  specialtiesTableBody?.addEventListener('click', async (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const action = button.getAttribute('data-action');
+    const id = parseInt(button.getAttribute('data-id'), 10);
+
+    if (action === 'delete-specialty') {
+      await deleteSpecialty(id);
+    }
+  });
+
+  slotsTableBody?.addEventListener('click', async (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const action = button.getAttribute('data-action');
+    const id = parseInt(button.getAttribute('data-id'), 10);
+
+    if (action === 'delete-slot') {
+      await deleteSlot(id);
+    }
+  });
+
+  appointmentsTableBody?.addEventListener('click', async (e) => {
+    const button = e.target.closest('button');
+    if (!button) return;
+
+    const action = button.getAttribute('data-action');
+    const id = parseInt(button.getAttribute('data-id'), 10);
+
+    if (action === 'cancel-appointment') {
+      await cancelAppointment(id);
+    }
+  });
+
+  async function cancelAppointment(id) {
+    const appointment = appointmentsCache.find((item) => item.id === id);
+    const appointmentLabel = appointment
+      ? `${appointment.patientFullName} - ${formatDateTime(appointment.startTime)}`
+      : `appuntamento #${id}`;
+
+    if (!confirm(`Confermi l'annullamento dell'appuntamento ${appointmentLabel}?`)) {
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`/Appointments/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          status: 2,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore durante l\'annullamento dell\'appuntamento.'));
+      }
+
+      await loadSlots();
+      await loadAppointments();
+      await loadReports();
+    } catch (err) {
+      alert(err.message || 'Errore durante l\'annullamento dell\'appuntamento.');
+    }
+  }
+
+  async function deleteSpecialty(id) {
+    const specialty = specialtiesCache.find((item) => item.id === id);
+    const specialtyName = specialty ? specialty.name : `specialità #${id}`;
+
+    if (!confirm(`Confermi l'eliminazione della specialità "${specialtyName}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`/Specialties/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore durante l\'eliminazione della specialità.'));
+      }
+
+      await loadSpecialties();
+      await loadDoctors();
+    } catch (err) {
+      alert(err.message || 'Errore durante l\'eliminazione della specialità.');
+    }
+  }
+
+  async function deleteSlot(id) {
+    const slot = slotsCache.find((item) => item.id === id);
+    const slotLabel = slot
+      ? `${slot.doctorFullName} - ${formatDateTime(slot.startTime)}`
+      : `slot #${id}`;
+
+    if (!confirm(`Confermi l'eliminazione dello slot ${slotLabel}?`)) {
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`/AvailabilitySlots/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore durante l\'eliminazione dello slot.'));
+      }
+
+      await loadSlots();
+      await loadAppointments();
+    } catch (err) {
+      alert(err.message || 'Errore durante l\'eliminazione dello slot.');
+    }
+  }
 
   // Resetta la form paziente in modalità creazione.
   function resetPatientForm() {
@@ -608,4 +763,56 @@ document.addEventListener('DOMContentLoaded', () => {
       showAlert(alertContainer, err.message || 'Errore nella creazione dell\'appuntamento.', 'danger');
     }
   });
+  // Elimina un paziente se non collegato ad appuntamenti.
+  async function deletePatient(id) {
+    const patient = patientsCache.find((item) => item.id === id);
+    const patientName = patient ? `${patient.firstName} ${patient.lastName}` : `paziente #${id}`;
+
+    if (!confirm(`Confermi l'eliminazione di ${patientName}?`)) {
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`/Patients/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore durante l\'eliminazione del paziente.'));
+      }
+
+      await loadPatients();
+      await loadAppointments();
+      await loadReports();
+    } catch (err) {
+      alert(err.message || 'Errore durante l\'eliminazione del paziente.');
+    }
+  }
+
+  // Elimina un medico se non collegato a slot o appuntamenti.
+  async function deleteDoctor(id) {
+    const doctor = doctorsCache.find((item) => item.id === id);
+    const doctorName = doctor ? `${doctor.firstName} ${doctor.lastName}` : `medico #${id}`;
+
+    if (!confirm(`Confermi l'eliminazione di ${doctorName}?`)) {
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`/Doctors/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response, 'Errore durante l\'eliminazione del medico.'));
+      }
+
+      await loadDoctors();
+      await loadSlots();
+      await loadAppointments();
+      await loadReports();
+    } catch (err) {
+      alert(err.message || 'Errore durante l\'eliminazione del medico.');
+    }
+  }
 });

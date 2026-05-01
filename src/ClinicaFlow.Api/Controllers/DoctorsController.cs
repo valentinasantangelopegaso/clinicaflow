@@ -413,6 +413,14 @@ public class DoctorsController : AuthenticatedControllerBase
             return Conflict("Non è possibile eliminare un medico collegato a slot di disponibilità o appuntamenti.");
         }
 
+        var account = await _context.UserAccounts
+            .FirstOrDefaultAsync(u => u.DoctorId == id && u.Role == "Doctor");
+
+        if (account is not null)
+        {
+            _context.UserAccounts.Remove(account);
+        }
+
         _context.Doctors.Remove(doctor);
         await _context.SaveChangesAsync();
 

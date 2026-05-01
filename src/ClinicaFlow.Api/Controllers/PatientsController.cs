@@ -393,6 +393,14 @@ public class PatientsController : AuthenticatedControllerBase
             return Conflict("Non è possibile eliminare un paziente collegato ad appuntamenti.");
         }
 
+        var account = await _context.UserAccounts
+            .FirstOrDefaultAsync(u => u.PatientId == id && u.Role == "Patient");
+
+        if (account is not null)
+        {
+            _context.UserAccounts.Remove(account);
+        }
+
         _context.Patients.Remove(patient);
         await _context.SaveChangesAsync();
 
